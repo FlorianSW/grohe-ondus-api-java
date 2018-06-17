@@ -1,5 +1,7 @@
 package org.grohe.ondus.api;
 
+import org.grohe.ondus.api.client.ApiClient;
+
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 

@@ -1,7 +1,15 @@
 package org.grohe.ondus.api;
 
-class TestResponse {
-    static final String A_TOKEN = "A_TOKEN";
+import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicStatusLine;
+
+import java.io.ByteArrayInputStream;
+
+public class TestResponse {
+    public static final String A_TOKEN = "A_TOKEN";
     static final String VALID_LOGIN_RESPONSE = "{\n" +
             "    \"token\": \"" + A_TOKEN + "\",\n" +
             "    \"uid\": \"550e8400-e29b-11d4-a716-446655440000\",\n" +
@@ -28,4 +36,14 @@ class TestResponse {
             "        \"phone_number\": \"[invalid field]\"\n" +
             "    }\n" +
             "}";
+
+    public static HttpResponse getOkResponse() {
+        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(
+                new ProtocolVersion("HTTP", 1, 1), 200, "OK"));
+
+        BasicHttpEntity contentEntity = new BasicHttpEntity();
+        contentEntity.setContent(new ByteArrayInputStream(VALID_LOGIN_RESPONSE.getBytes()));
+        response.setEntity(contentEntity);
+        return response;
+    }
 }
