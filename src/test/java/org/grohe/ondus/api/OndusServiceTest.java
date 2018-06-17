@@ -1,10 +1,12 @@
 package org.grohe.ondus.api;
 
 import org.grohe.ondus.api.actions.LocationAction;
+import org.grohe.ondus.api.actions.RoomAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.Authentication;
 import org.grohe.ondus.api.model.Location;
+import org.grohe.ondus.api.model.Room;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,11 +28,14 @@ public class OndusServiceTest {
     private static final String A_PASSWORD = "A_PASSWORD";
 
     private ApiClient mockApiClient;
+    private Location location123;
 
     @Before
     public void createMocks() {
         mockApiClient = mock(ApiClient.class);
         when(mockApiClient.getAction(any())).thenCallRealMethod();
+        location123 = new Location();
+        location123.setId(123);
     }
 
     @Test(expected = LoginException.class)
@@ -64,8 +69,7 @@ public class OndusServiceTest {
         LocationAction locationAction = mock(LocationAction.class);
         when(locationAction.getLocations()).thenReturn(Collections.emptyList());
         when(mockApiClient.getAction(LocationAction.class)).thenReturn(locationAction);
-        OndusService ondusService = new OndusService();
-        ondusService.apiClient = mockApiClient;
+        OndusService ondusService = getOndusServiceWithApiClient();
 
         ondusService.getLocations();
 
@@ -77,11 +81,40 @@ public class OndusServiceTest {
         LocationAction locationAction = mock(LocationAction.class);
         when(locationAction.getLocation(anyInt())).thenReturn(Optional.of(new Location()));
         when(mockApiClient.getAction(LocationAction.class)).thenReturn(locationAction);
-        OndusService ondusService = new OndusService();
-        ondusService.apiClient = mockApiClient;
+        OndusService ondusService = getOndusServiceWithApiClient();
 
         ondusService.getLocation(123);
 
         verify(locationAction).getLocation(123);
+    }
+
+    @Test
+    public void getRooms_callsRoomAction() throws Exception {
+        RoomAction roomAction = mock(RoomAction.class);
+        when(roomAction.getRooms(any(Location.class))).thenReturn(Collections.emptyList());
+        when(mockApiClient.getAction(RoomAction.class)).thenReturn(roomAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.getRooms(location123);
+
+        verify(roomAction).getRooms(any(Location.class));
+    }
+
+    @Test
+    public void getRoom_callsRoomAction() throws Exception {
+        RoomAction roomAction = mock(RoomAction.class);
+        when(roomAction.getRoom(any(Location.class), anyInt())).thenReturn(Optional.of(new Room()));
+        when(mockApiClient.getAction(RoomAction.class)).thenReturn(roomAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.getRoom(location123, 123);
+
+        verify(roomAction).getRoom(any(Location.class), eq(123));
+    }
+
+    private OndusService getOndusServiceWithApiClient() {
+        OndusService ondusService = new OndusService();
+        ondusService.apiClient = mockApiClient;
+        return ondusService;
     }
 }
