@@ -7,16 +7,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@NoArgsConstructor
 @Getter
 @Setter
-public class Location {
-    public int id;
-    public String name;
-    public int type;
-    public String role;
-    public String timezone;
-    @JsonProperty("emergency_shutdown_enable")
-    public boolean emergencyShutdownEnable;
-    public Address address;
+@NoArgsConstructor
+public class Address {
+    public String street;
+    public String city;
+    public String zipcode;
+    public String housenumber;
+    public String country;
+    @JsonProperty("country_code")
+    public String countryCode;
+    public String additionalInfo;
 }
