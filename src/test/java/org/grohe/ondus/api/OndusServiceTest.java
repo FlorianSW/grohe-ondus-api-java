@@ -1,10 +1,10 @@
 package org.grohe.ondus.api;
 
 import org.grohe.ondus.api.actions.LocationAction;
-import org.grohe.ondus.api.actions.LoginAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.Authentication;
+import org.grohe.ondus.api.model.Location;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.*;
 
 public class OndusServiceTest {
@@ -69,5 +70,18 @@ public class OndusServiceTest {
         ondusService.getLocations();
 
         verify(locationAction).getLocations();
+    }
+
+    @Test
+    public void getLocation_callsLocationAction() throws Exception {
+        LocationAction locationAction = mock(LocationAction.class);
+        when(locationAction.getLocation(anyInt())).thenReturn(Optional.of(new Location()));
+        when(mockApiClient.getAction(LocationAction.class)).thenReturn(locationAction);
+        OndusService ondusService = new OndusService();
+        ondusService.apiClient = mockApiClient;
+
+        ondusService.getLocation(123);
+
+        verify(locationAction).getLocation(123);
     }
 }

@@ -8,6 +8,7 @@ import org.grohe.ondus.api.model.Location;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public class OndusService {
 
@@ -37,5 +38,11 @@ public class OndusService {
         LocationAction action = apiClient.getAction(LocationAction.class);
 
         return action.getLocations();
+    }
+
+    public Optional<Location> getLocation(int id) throws IOException {
+        LocationAction action = apiClient.getAction(LocationAction.class);
+
+        return action.getLocation(id);
     }
 }

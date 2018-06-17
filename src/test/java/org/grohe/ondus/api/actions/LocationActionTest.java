@@ -9,7 +9,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -48,5 +48,33 @@ public class LocationActionTest {
         List<Location> actualList = action.getLocations();
 
         assertEquals(2, actualList.size());
+    }
+
+    @Test
+    public void getLocation_invalidId_returnsEmptyOptional() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(404);
+        when(mockApiClient.get(eq("/v2/iot/locations/123"), any())).thenReturn(mockApiResponse);
+        LocationAction action = new LocationAction();
+        action.setApiClient(mockApiClient);
+
+        Optional<Location> actual = action.getLocation(123);
+
+        assertFalse(actual.isPresent());
+    }
+
+    @Test
+    public void getLocation_validId_returnsLocation() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(200);
+        Location location = new Location();
+        location.setId(123);
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(location));
+        when(mockApiClient.get(eq("/v2/iot/locations/123"), any())).thenReturn(mockApiResponse);
+        LocationAction action = new LocationAction();
+        action.setApiClient(mockApiClient);
+
+        Optional<Location> actual = action.getLocation(123);
+
+        assertTrue(actual.isPresent());
+        assertEquals(123, actual.get().getId());
     }
 }
