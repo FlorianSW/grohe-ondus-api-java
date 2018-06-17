@@ -1,5 +1,7 @@
 package org.grohe.ondus.api;
 
+import org.grohe.ondus.api.actions.LocationAction;
+import org.grohe.ondus.api.actions.LoginAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.model.Location;
 

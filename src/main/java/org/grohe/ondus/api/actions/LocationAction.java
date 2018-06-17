@@ -1,4 +1,4 @@
-package org.grohe.ondus.api;
+package org.grohe.ondus.api.actions;
 
 import lombok.NoArgsConstructor;
 import org.grohe.ondus.api.client.ApiResponse;

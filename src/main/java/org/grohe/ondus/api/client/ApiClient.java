@@ -8,7 +8,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClients;
-import org.grohe.ondus.api.Action;
+import org.grohe.ondus.api.actions.Action;
 
 import java.io.IOException;
 import java.util.Collections;

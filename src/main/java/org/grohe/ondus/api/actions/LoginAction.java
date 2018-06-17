@@ -1,4 +1,4 @@
-package org.grohe.ondus.api;
+package org.grohe.ondus.api.actions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.io.IOException;
 public class LoginAction extends AbstractAction {
     private static final String LOGIN_URL = "/v2/iot/auth/users/login";
 
-    String getToken(String username, String password) throws IOException, LoginException {
+    public String getToken(String username, String password) throws IOException, LoginException {
         ApiResponse<Authentication> authResponse = getApiClient()
                 .post(LOGIN_URL, new LoginRequest(username, password), Authentication.class);
 

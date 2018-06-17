@@ -1,5 +1,7 @@
 package org.grohe.ondus.api;
 
+import org.grohe.ondus.api.actions.LocationAction;
+import org.grohe.ondus.api.actions.LoginAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.Authentication;
@@ -34,7 +36,7 @@ public class OndusServiceTest {
     public void login_invalidUsernamePassword_throwsAccessDeniedException() throws Exception {
         ApiResponse mockApiResponse = mock(ApiResponse.class);
         when(mockApiResponse.getStatusCode()).thenReturn(441);
-        when(mockApiClient.post(any(), any(LoginAction.LoginRequest.class), eq(Authentication.class)))
+        when(mockApiClient.post(any(), any(), eq(Authentication.class)))
                 .thenReturn(mockApiResponse);
 
         OndusService.login(A_USERNAME, A_PASSWORD, mockApiClient);
@@ -46,7 +48,7 @@ public class OndusServiceTest {
         authentication.setToken(A_TOKEN);
         ApiResponse mockApiResponse = mock(ApiResponse.class);
         when(mockApiResponse.getContent()).thenReturn(Optional.of(authentication));
-        when(mockApiClient.post(any(), any(LoginAction.LoginRequest.class), eq(Authentication.class)))
+        when(mockApiClient.post(any(), any(), eq(Authentication.class)))
                 .thenReturn(mockApiResponse);
 
         OndusService actualService = OndusService.login(A_USERNAME, A_PASSWORD, mockApiClient);
