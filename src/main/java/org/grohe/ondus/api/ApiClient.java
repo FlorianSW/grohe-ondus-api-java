@@ -2,19 +2,23 @@ package org.grohe.ondus.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 
 public class ApiClient {
+    private static final String HEADER_ACCEPT_LANGUAGE = "Accept-Language";
+    private static final String HEADER_CONTENT_TYPE = "Content-Type";
+    private static final String HEADER_AUTHORIZATION = "Authorization";
+    private static final String LANG_DE_DE = "de_DE";
+    private static final String CONTENT_TYPE_JSON = "application/json";
+
     private String baseUrl;
     private HttpClient httpClient;
     private ObjectMapper mapper = new ObjectMapper();
@@ -30,7 +34,7 @@ public class ApiClient {
 
     public <T> Optional<T> get(String requestUrl, String token, Class<T> returnType) throws IOException {
         HttpGet get = new HttpGet(baseUrl + requestUrl);
-        get.setHeader("Authorization", token);
+        get.setHeader(HEADER_AUTHORIZATION, token);
         HttpResponse response = httpClient.execute(get);
 
         return getEntityFromResponse(response, returnType);
@@ -40,12 +44,15 @@ public class ApiClient {
         return post(requestUrl, Collections.emptyMap(), returnType);
     }
 
-    public <T> Optional<T> post(String requestUrl, Map<String, String> parameter, Class<T> returnType) throws IOException {
+    public <T> Optional<T> post(String requestUrl, Object parameter, Class<T> returnType) throws IOException {
         HttpPost post = new HttpPost(baseUrl + requestUrl);
+
         String serializedParameters = mapper.writeValueAsString(parameter);
         post.setEntity(new ByteArrayEntity(serializedParameters.getBytes()));
-        post.setHeader("Accept-Language", "de_DE");
-        post.setHeader("Content-Type", "application/json");
+
+        post.setHeader(HEADER_ACCEPT_LANGUAGE, LANG_DE_DE);
+        post.setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON);
+
         HttpResponse response = httpClient.execute(post);
 
         return getEntityFromResponse(response, returnType);

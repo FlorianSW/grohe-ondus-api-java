@@ -32,7 +32,8 @@ public class OndusServiceTest {
         ApiClient mockClient = mock(ApiClient.class);
         Authentication authentication = new Authentication();
         authentication.setToken(A_TOKEN);
-        when(mockClient.post(any(), anyMap(), eq(Authentication.class))).thenReturn(Optional.of(authentication));
+        when(mockClient.post(any(), any(LoginHandler.LoginRequest.class), eq(Authentication.class)))
+                .thenReturn(Optional.of(authentication));
 
         OndusService actualService = OndusService.login(A_USERNAME, A_PASSWORD, mockClient);
 
