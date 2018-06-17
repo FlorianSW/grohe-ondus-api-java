@@ -24,7 +24,7 @@ public class OndusServiceTest {
     public void login_invalidUsernamePassword_throwsAccessDeniedException() throws Exception {
         ApiClient mockClient = mock(ApiClient.class);
         ApiResponse mockApiResponse = mock(ApiResponse.class);
-        when(mockApiResponse.getContent()).thenReturn(Optional.empty());
+        when(mockApiResponse.getStatusCode()).thenReturn(441);
         when(mockClient.post(any(), any(LoginHandler.LoginRequest.class), eq(Authentication.class)))
                 .thenReturn(mockApiResponse);
 
