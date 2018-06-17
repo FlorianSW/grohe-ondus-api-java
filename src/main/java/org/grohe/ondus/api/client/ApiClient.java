@@ -12,10 +12,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class ApiClient {
-    private static final String HEADER_ACCEPT_LANGUAGE = "Accept-Language";
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final String HEADER_AUTHORIZATION = "Authorization";
-    private static final String LANG_DE_DE = "de_DE";
     private static final String CONTENT_TYPE_JSON = "application/json";
 
     private String baseUrl;
@@ -49,7 +47,6 @@ public class ApiClient {
         String serializedParameters = mapper.writeValueAsString(body);
         post.setEntity(new ByteArrayEntity(serializedParameters.getBytes()));
 
-        post.setHeader(HEADER_ACCEPT_LANGUAGE, LANG_DE_DE);
         post.setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON);
 
         HttpResponse response = httpClient.execute(post);
