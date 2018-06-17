@@ -1,14 +1,18 @@
 package org.grohe.ondus.api.client;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.grohe.ondus.api.Action;
 import org.grohe.ondus.api.TestResponse;
 import org.grohe.ondus.api.model.Authentication;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -25,59 +29,62 @@ public class ApiClientTest {
             new ProtocolVersion("HTTP", 1, 1), 500, ""));
     private static final String TEST_BASE_URL = "";
 
+    private HttpClient mockHttpClient;
+
+    @Before
+    public void createMocks() {
+        mockHttpClient = mock(HttpClient.class);
+    }
+
     @Test
     public void get_callsHttpClientWithGetAndToken() throws Exception {
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(any())).thenReturn(getOkResponse());
-        ApiClient client = new ApiClient(TEST_BASE_URL, httpClient);
+        when(mockHttpClient.execute(any())).thenReturn(getOkResponse());
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
+        client.setToken(A_TOKEN);
 
-        client.get("/v2/info", A_TOKEN, Object.class);
+        client.get("/v2/info", Object.class);
 
         ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
-        verify(httpClient).execute(captor.capture());
+        verify(mockHttpClient).execute(captor.capture());
         HttpGet actualRequest = captor.getValue();
         assertEquals(A_TOKEN, actualRequest.getHeaders("Authorization")[0].getValue());
     }
 
     @Test
     public void get_non200Response_returnsEmptyOptional() throws Exception {
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(any())).thenReturn(EXAMPLE_RESPONSE_500);
-        ApiClient client = new ApiClient(TEST_BASE_URL, httpClient);
+        when(mockHttpClient.execute(any())).thenReturn(EXAMPLE_RESPONSE_500);
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 
-        ApiResponse<Object> response = client.get("/v2/auth", "", Object.class);
+        ApiResponse<Object> response = client.get("/v2/auth", Object.class);
 
         assertFalse(response.getContent().isPresent());
     }
 
     @Test
     public void get_200Response_returnsClassObject() throws Exception {
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(any())).thenReturn(getOkResponse());
-        ApiClient client = new ApiClient(TEST_BASE_URL, httpClient);
+        when(mockHttpClient.execute(any())).thenReturn(getOkResponse());
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 
-        ApiResponse<Authentication> response = client.get("/v2/auth", "", Authentication.class);
+        ApiResponse<Authentication> response = client.get("/v2/auth", Authentication.class);
 
         assertTrue(response.getContent().isPresent());
-        Assert.assertEquals(TestResponse.A_TOKEN, response.getContent().orElseThrow(NoSuchElementException::new).getToken());
+        assertEquals(TestResponse.A_TOKEN, response.getContent().orElseThrow(NoSuchElementException::new).getToken());
     }
 
     @Test
     public void post_callsHttpClientWithPost() throws Exception {
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(any())).thenReturn(getOkResponse());
-        ApiClient client = new ApiClient(TEST_BASE_URL, httpClient);
+        when(mockHttpClient.execute(any())).thenReturn(getOkResponse());
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 
         client.post("/v2/info", Object.class);
 
-        verify(httpClient).execute(any(HttpPost.class));
+        verify(mockHttpClient).execute(any(HttpPost.class));
     }
 
     @Test
     public void post_non200Response_returnsEmptyOptional() throws Exception {
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(any())).thenReturn(EXAMPLE_RESPONSE_500);
-        ApiClient client = new ApiClient(TEST_BASE_URL, httpClient);
+        when(mockHttpClient.execute(any())).thenReturn(EXAMPLE_RESPONSE_500);
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 
         ApiResponse<Object> response = client.post("/v2/auth", Object.class);
 
@@ -86,13 +93,28 @@ public class ApiClientTest {
 
     @Test
     public void post_200Response_returnsClassObject() throws Exception {
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(any())).thenReturn(getOkResponse());
-        ApiClient client = new ApiClient(TEST_BASE_URL, httpClient);
+        when(mockHttpClient.execute(any())).thenReturn(getOkResponse());
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 
         ApiResponse<Authentication> response = client.post("/v2/auth", Authentication.class);
 
         assertTrue(response.getContent().isPresent());
         assertEquals(TestResponse.A_TOKEN, response.getContent().orElseThrow(NoSuchElementException::new).getToken());
+    }
+
+    @Test
+    public void getAction_returnsActionWithApiClient() {
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
+
+        TestAction action = client.getAction(TestAction.class);
+
+        assertEquals(client, action.getApiClient());
+    }
+
+    @NoArgsConstructor
+    private static class TestAction implements Action {
+        @Getter
+        @Setter
+        private ApiClient apiClient;
     }
 }

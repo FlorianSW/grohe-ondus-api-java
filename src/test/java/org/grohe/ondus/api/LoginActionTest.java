@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LoginHandlerTest {
+public class LoginActionTest {
     private static final String A_USERNAME = "A_USERNAME";
     private static final String A_PASSWORD = "A_PASSWORD";
 
@@ -32,30 +32,33 @@ public class LoginHandlerTest {
     @Test(expected = LoginException.class)
     public void getToken_441_throwsLoginException() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(441);
-        when(mockApiClient.post(any(), any(LoginHandler.LoginRequest.class), eq(Authentication.class)))
+        when(mockApiClient.post(any(), any(LoginAction.LoginRequest.class), eq(Authentication.class)))
                 .thenReturn(mockApiResponse);
-        LoginHandler loginHandler = new LoginHandler(mockApiClient);
+        LoginAction loginAction = new LoginAction();
+        loginAction.setApiClient(mockApiClient);
 
-        loginHandler.getToken(A_USERNAME, A_PASSWORD);
+        loginAction.getToken(A_USERNAME, A_PASSWORD);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getToken_500_throwsIllegalArgumentException() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(500);
-        when(mockApiClient.post(any(), any(LoginHandler.LoginRequest.class), eq(Authentication.class)))
+        when(mockApiClient.post(any(), any(LoginAction.LoginRequest.class), eq(Authentication.class)))
                 .thenReturn(mockApiResponse);
-        LoginHandler loginHandler = new LoginHandler(mockApiClient);
+        LoginAction loginAction = new LoginAction();
+        loginAction.setApiClient(mockApiClient);
 
-        loginHandler.getToken(A_USERNAME, A_PASSWORD);
+        loginAction.getToken(A_USERNAME, A_PASSWORD);
     }
 
     @Test
     public void getToken_200_returnsToken() throws Exception {
-        when(mockApiClient.post(any(), any(LoginHandler.LoginRequest.class), eq(Authentication.class)))
+        when(mockApiClient.post(any(), any(LoginAction.LoginRequest.class), eq(Authentication.class)))
                 .thenReturn(new ApiResponse<>(getOkResponse(), Authentication.class));
-        LoginHandler loginHandler = new LoginHandler(mockApiClient);
+        LoginAction loginAction = new LoginAction();
+        loginAction.setApiClient(mockApiClient);
 
-        String token = loginHandler.getToken(A_USERNAME, A_PASSWORD);
+        String token = loginAction.getToken(A_USERNAME, A_PASSWORD);
 
         assertEquals(A_TOKEN, token);
     }

@@ -1,9 +1,11 @@
 package org.grohe.ondus.api;
 
 import org.grohe.ondus.api.client.ApiClient;
+import org.grohe.ondus.api.model.Location;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.util.List;
 
 public class OndusService {
 
@@ -19,9 +21,19 @@ public class OndusService {
         OndusService service = new OndusService();
         service.apiClient = apiClient;
 
-        LoginHandler loginHandler = new LoginHandler(apiClient);
-        service.token = loginHandler.getToken(username, password);
+        LoginAction loginAction = apiClient.getAction(LoginAction.class);
+        service.token = loginAction.getToken(username, password);
 
+        apiClient.setToken(service.token);
         return service;
+    }
+
+    OndusService() {
+    }
+
+    public List<Location> getLocations() throws IOException {
+        LocationAction action = apiClient.getAction(LocationAction.class);
+
+        return action.getLocations();
     }
 }
