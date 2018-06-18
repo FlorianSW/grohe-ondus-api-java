@@ -25,8 +25,7 @@ public class RoomActionTest {
     public void createMocks() {
         mockApiClient = mock(ApiClient.class);
         mockApiResponse = mock(ApiResponse.class);
-        location123 = new Location();
-        location123.setId(123);
+        location123 = new Location(123);
     }
 
     @Test
@@ -69,8 +68,7 @@ public class RoomActionTest {
     @Test
     public void getRoom_validId_returnsLocation() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(200);
-        Room room = new Room();
-        room.setId(123);
+        Room room = new Room(123);
         when(mockApiResponse.getContent()).thenReturn(Optional.of(room));
         when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123"), any())).thenReturn(mockApiResponse);
         RoomAction action = new RoomAction();

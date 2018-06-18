@@ -19,4 +19,8 @@ public class Location {
     @JsonProperty("emergency_shutdown_enable")
     public boolean emergencyShutdownEnable;
     public Address address;
+
+    public Location(int id) {
+        this.id = id;
+    }
 }

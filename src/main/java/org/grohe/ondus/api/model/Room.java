@@ -14,4 +14,8 @@ public class Room {
     private String name;
     private int type;
     private String role;
+
+    public Room(int id) {
+        this.id = id;
+    }
 }

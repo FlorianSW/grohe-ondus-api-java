@@ -34,8 +34,7 @@ public class OndusServiceTest {
     public void createMocks() {
         mockApiClient = mock(ApiClient.class);
         when(mockApiClient.getAction(any())).thenCallRealMethod();
-        location123 = new Location();
-        location123.setId(123);
+        location123 = new Location(123);
     }
 
     @Test(expected = LoginException.class)

@@ -65,8 +65,7 @@ public class LocationActionTest {
     @Test
     public void getLocation_validId_returnsLocation() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(200);
-        Location location = new Location();
-        location.setId(123);
+        Location location = new Location(123);
         when(mockApiResponse.getContent()).thenReturn(Optional.of(location));
         when(mockApiClient.get(eq("/v2/iot/locations/123"), any())).thenReturn(mockApiResponse);
         LocationAction action = new LocationAction();
