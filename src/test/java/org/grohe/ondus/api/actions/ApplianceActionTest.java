@@ -3,6 +3,7 @@ package org.grohe.ondus.api.actions;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.Appliance;
+import org.grohe.ondus.api.model.ApplianceData;
 import org.grohe.ondus.api.model.Location;
 import org.grohe.ondus.api.model.Room;
 import org.junit.Before;
@@ -40,13 +41,12 @@ public class ApplianceActionTest {
         List<Appliance> actualList = action.getAppliances(room123);
 
         assertEquals(0, actualList.size());
-        actualList.forEach(appliance -> assertEquals(room123, appliance.getRoom()));
     }
 
     @Test
     public void getAppliances_validResponse_returnsListOfAppliances() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(200);
-        when(mockApiResponse.getContent()).thenReturn(Optional.of(new Room[]{new Room(), new Room()}));
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(new Appliance[]{new Appliance(), new Appliance()}));
         when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances"), any())).thenReturn(mockApiResponse);
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
@@ -54,6 +54,7 @@ public class ApplianceActionTest {
         List<Appliance> actualList = action.getAppliances(room123);
 
         assertEquals(2, actualList.size());
+        actualList.forEach(appliance -> assertEquals(room123, appliance.getRoom()));
     }
 
     @Test
@@ -82,5 +83,34 @@ public class ApplianceActionTest {
         assertTrue(actual.isPresent());
         assertEquals("123", actual.get().getApplianceId());
         assertEquals(room123, actual.get().getRoom());
+    }
+
+    @Test
+    public void getApplianceData_invalidApliance_returnsEmptyOptional() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(404);
+        when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/data"), any())).thenReturn(mockApiResponse);
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+
+        Optional<ApplianceData> actual = action.getApplianceData(new Appliance("123", room123));
+
+        assertFalse(actual.isPresent());
+    }
+
+    @Test
+    public void getApplianceData_validApliance_returnsApplianceData() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(200);
+        ApplianceData applianceData = new ApplianceData("123", new Appliance());
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(applianceData));
+        when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/data"), any())).thenReturn(mockApiResponse);
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+        Appliance appliance = new Appliance("123", room123);
+
+        Optional<ApplianceData> actual = action.getApplianceData(appliance);
+
+        assertTrue(actual.isPresent());
+        assertEquals("123", actual.get().getApplianceId());
+        assertEquals(appliance, actual.get().getAppliance());
     }
 }

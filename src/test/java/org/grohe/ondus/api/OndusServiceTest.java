@@ -5,10 +5,7 @@ import org.grohe.ondus.api.actions.LocationAction;
 import org.grohe.ondus.api.actions.RoomAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
-import org.grohe.ondus.api.model.Appliance;
-import org.grohe.ondus.api.model.Authentication;
-import org.grohe.ondus.api.model.Location;
-import org.grohe.ondus.api.model.Room;
+import org.grohe.ondus.api.model.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -137,6 +134,18 @@ public class OndusServiceTest {
         ondusService.getAppliance(room123, "123");
 
         verify(applianceAction).getAppliance(any(Room.class), eq("123"));
+    }
+
+    @Test
+    public void getApplianceData_callsApplianceAction() throws Exception {
+        ApplianceAction applianceAction = mock(ApplianceAction.class);
+        when(applianceAction.getApplianceData(any(Appliance.class))).thenReturn(Optional.of(new ApplianceData()));
+        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.getApplianceData(new Appliance("123", room123));
+
+        verify(applianceAction).getApplianceData(any(Appliance.class));
     }
 
     private OndusService getOndusServiceWithApiClient() {

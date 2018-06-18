@@ -119,20 +119,20 @@ public class Appliance {
         private Boolean sprinklerModeActiveSaturday;
         @JsonProperty("sprinkler_mode_active_sunday")
         private Boolean sprinklerModeActiveSunday;
+    }
 
-        @Getter
-        @Setter
-        @NoArgsConstructor
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        public class Threshold {
-            @JsonProperty("quantity")
-            private String quantity;
-            @JsonProperty("type")
-            private String type;
-            @JsonProperty("value")
-            private Integer value;
-            @JsonProperty("enabled")
-            private Boolean enabled;
-        }
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Threshold {
+        @JsonProperty("quantity")
+        private String quantity;
+        @JsonProperty("type")
+        private String type;
+        @JsonProperty("value")
+        private Integer value;
+        @JsonProperty("enabled")
+        private Boolean enabled;
     }
 }
