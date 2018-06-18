@@ -62,15 +62,15 @@ public class OndusService {
         return action.getRoom(inLocation, id);
     }
 
-    public List<Appliance> getAppliances(Location inLocation, Room inRoom) throws IOException {
+    public List<Appliance> getAppliances(Room inRoom) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
-        return action.getAppliances(inLocation, inRoom);
+        return action.getAppliances(inRoom);
     }
 
-    public Optional<Appliance> getAppliance(Location inLocation, Room inRoom, String applianceId) throws IOException {
+    public Optional<Appliance> getAppliance(Room inRoom, String applianceId) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
-        return action.getAppliance(inLocation, inRoom, applianceId);
+        return action.getAppliance(inRoom, applianceId);
     }
 }

@@ -51,6 +51,7 @@ public class RoomActionTest {
         List<Room> actualList = action.getRooms(location123);
 
         assertEquals(2, actualList.size());
+        actualList.forEach(room -> assertEquals(123, room.getLocation().getId()));
     }
 
     @Test
@@ -68,7 +69,7 @@ public class RoomActionTest {
     @Test
     public void getRoom_validId_returnsLocation() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(200);
-        Room room = new Room(123);
+        Room room = new Room(123, new Location());
         when(mockApiResponse.getContent()).thenReturn(Optional.of(room));
         when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123"), any())).thenReturn(mockApiResponse);
         RoomAction action = new RoomAction();
@@ -78,5 +79,6 @@ public class RoomActionTest {
 
         assertTrue(actual.isPresent());
         assertEquals(123, actual.get().getId());
+        assertEquals(123, actual.get().getLocation().getId());
     }
 }

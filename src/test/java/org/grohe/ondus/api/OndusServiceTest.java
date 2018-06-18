@@ -38,7 +38,7 @@ public class OndusServiceTest {
         mockApiClient = mock(ApiClient.class);
         when(mockApiClient.getAction(any())).thenCallRealMethod();
         location123 = new Location(123);
-        room123 = new Room(123);
+        room123 = new Room(123, location123);
     }
 
     @Test(expected = LoginException.class)
@@ -118,25 +118,25 @@ public class OndusServiceTest {
     @Test
     public void getAppliances_callsApplianceAction() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getAppliances(any(Location.class), any(Room.class))).thenReturn(Collections.emptyList());
+        when(applianceAction.getAppliances(any(Room.class))).thenReturn(Collections.emptyList());
         when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
         OndusService ondusService = getOndusServiceWithApiClient();
 
-        ondusService.getAppliances(location123, room123);
+        ondusService.getAppliances(room123);
 
-        verify(applianceAction).getAppliances(any(Location.class), any(Room.class));
+        verify(applianceAction).getAppliances(any(Room.class));
     }
 
     @Test
     public void getAppliance_callsApplianceAction() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getAppliance(any(Location.class), any(Room.class), anyString())).thenReturn(Optional.of(new Appliance()));
+        when(applianceAction.getAppliance(any(Room.class), anyString())).thenReturn(Optional.of(new Appliance()));
         when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
         OndusService ondusService = getOndusServiceWithApiClient();
 
-        ondusService.getAppliance(location123, room123, "123");
+        ondusService.getAppliance(room123, "123");
 
-        verify(applianceAction).getAppliance(any(Location.class), any(Room.class), eq("123"));
+        verify(applianceAction).getAppliance(any(Room.class), eq("123"));
     }
 
     private OndusService getOndusServiceWithApiClient() {

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class RoomAction extends AbstractAction {
@@ -22,7 +23,9 @@ public class RoomAction extends AbstractAction {
         if (roomsResponse.getStatusCode() != 200) {
             return Collections.emptyList();
         }
-        return Arrays.asList(roomsResponse.getContent().orElseGet(() -> new Room[]{}));
+        List<Room> rooms = Arrays.asList(roomsResponse.getContent().orElseGet(() -> new Room[]{}));
+
+        return rooms.stream().peek(room -> room.setLocation(forLocation)).collect(Collectors.toList());
     }
 
     public Optional<Room> getRoom(Location inLocation, int id) throws IOException {
@@ -31,6 +34,14 @@ public class RoomAction extends AbstractAction {
         if (roomResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
-        return roomResponse.getContent();
+
+        Optional<Room> roomOptional = roomResponse.getContent();
+        if (roomOptional.isPresent()) {
+            Room room = roomOptional.get();
+            room.setLocation(inLocation);
+            roomOptional = Optional.of(room);
+        }
+
+        return roomOptional;
     }
 }

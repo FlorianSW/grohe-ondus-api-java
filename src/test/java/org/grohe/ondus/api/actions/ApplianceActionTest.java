@@ -20,15 +20,14 @@ import static org.mockito.Mockito.when;
 public class ApplianceActionTest {
     private ApiClient mockApiClient;
     private ApiResponse mockApiResponse;
-    private Location location123;
     private Room room123;
 
     @Before
     public void createMocks() {
         mockApiClient = mock(ApiClient.class);
         mockApiResponse = mock(ApiResponse.class);
-        location123 = new Location(123);
-        room123 = new Room(123);
+        Location location123 = new Location(123);
+        room123 = new Room(123, location123);
     }
 
     @Test
@@ -38,9 +37,10 @@ public class ApplianceActionTest {
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
 
-        List<Appliance> actualList = action.getAppliances(location123, room123);
+        List<Appliance> actualList = action.getAppliances(room123);
 
         assertEquals(0, actualList.size());
+        actualList.forEach(appliance -> assertEquals(room123, appliance.getRoom()));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class ApplianceActionTest {
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
 
-        List<Appliance> actualList = action.getAppliances(location123, room123);
+        List<Appliance> actualList = action.getAppliances(room123);
 
         assertEquals(2, actualList.size());
     }
@@ -63,7 +63,7 @@ public class ApplianceActionTest {
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
 
-        Optional<Appliance> actual = action.getAppliance(location123, room123, "123");
+        Optional<Appliance> actual = action.getAppliance(room123, "123");
 
         assertFalse(actual.isPresent());
     }
@@ -71,15 +71,16 @@ public class ApplianceActionTest {
     @Test
     public void getAppliance_validId_returnsAppliance() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(200);
-        Appliance room = new Appliance("123");
+        Appliance room = new Appliance("123", new Room());
         when(mockApiResponse.getContent()).thenReturn(Optional.of(room));
         when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123"), any())).thenReturn(mockApiResponse);
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
 
-        Optional<Appliance> actual = action.getAppliance(location123, room123, "123");
+        Optional<Appliance> actual = action.getAppliance(room123, "123");
 
         assertTrue(actual.isPresent());
         assertEquals("123", actual.get().getApplianceId());
+        assertEquals(room123, actual.get().getRoom());
     }
 }

@@ -1,7 +1,9 @@
 package org.grohe.ondus.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,25 +14,29 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode(of = "applianceId")
 public class Appliance {
     @JsonProperty("appliance_id")
-    public String applianceId;
+    private String applianceId;
     @JsonProperty("installation_date")
-    public String installationDate;
-    public String name;
+    private String installationDate;
+    private String name;
     @JsonProperty("serial_number")
-    public String serialNumber;
-    public Integer type;
-    public String version;
-    public String tdt;
-    public Integer timezone;
-    public Config config;
-    public String role;
+    private String serialNumber;
+    private Integer type;
+    private String version;
+    private String tdt;
+    private Integer timezone;
+    private Config config;
+    private String role;
     @JsonProperty("registration_complete")
-    public Boolean registrationComplete;
+    private Boolean registrationComplete;
+    @JsonIgnore
+    private Room room = new Room();
 
-    public Appliance(String applianceId) {
+    public Appliance(String applianceId, Room inRoom) {
         this.applianceId = applianceId;
+        this.room = inRoom;
     }
 
     @Getter
@@ -38,81 +44,81 @@ public class Appliance {
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public class Config {
-        public List<Threshold> thresholds = null;
+        private List<Threshold> thresholds = null;
         @JsonProperty("measurement_period")
-        public Integer measurementPeriod;
+        private Integer measurementPeriod;
         @JsonProperty("measurement_transmission_intervall")
-        public Integer measurementTransmissionIntervall;
+        private Integer measurementTransmissionIntervall;
         @JsonProperty("measurement_transmission_intervall_offset")
-        public Integer measurementTransmissionIntervallOffset;
+        private Integer measurementTransmissionIntervallOffset;
         @JsonProperty("action_on_major_leakage")
-        public Integer actionOnMajorLeakage;
+        private Integer actionOnMajorLeakage;
         @JsonProperty("action_on_minor_leakage")
-        public Integer actionOnMinorLeakage;
+        private Integer actionOnMinorLeakage;
         @JsonProperty("action_on_micro_leakage")
-        public Integer actionOnMicroLeakage;
+        private Integer actionOnMicroLeakage;
         @JsonProperty("monitor_frost_alert")
-        public Boolean monitorFrostAlert;
+        private Boolean monitorFrostAlert;
         @JsonProperty("monitor_lower_flow_limit")
-        public Boolean monitorLowerFlowLimit;
+        private Boolean monitorLowerFlowLimit;
         @JsonProperty("monitor_upper_flow_limit")
-        public Boolean monitorUpperFlowLimit;
+        private Boolean monitorUpperFlowLimit;
         @JsonProperty("monitor_lower_pressure_limit")
-        public Boolean monitorLowerPressureLimit;
+        private Boolean monitorLowerPressureLimit;
         @JsonProperty("monitor_upper_pressure_limit")
-        public Boolean monitorUpperPressureLimit;
+        private Boolean monitorUpperPressureLimit;
         @JsonProperty("monitor_lower_temperature_limit")
-        public Boolean monitorLowerTemperatureLimit;
+        private Boolean monitorLowerTemperatureLimit;
         @JsonProperty("monitor_upper_temperature_limit")
-        public Boolean monitorUpperTemperatureLimit;
+        private Boolean monitorUpperTemperatureLimit;
         @JsonProperty("monitor_major_leakage")
-        public Boolean monitorMajorLeakage;
+        private Boolean monitorMajorLeakage;
         @JsonProperty("monitor_minor_leakage")
-        public Boolean monitorMinorLeakage;
+        private Boolean monitorMinorLeakage;
         @JsonProperty("monitor_micro_leakage")
-        public Boolean monitorMicroLeakage;
+        private Boolean monitorMicroLeakage;
         @JsonProperty("monitor_system_error")
-        public Boolean monitorSystemError;
+        private Boolean monitorSystemError;
         @JsonProperty("monitor_btw_0_1_and_0_8_leakage")
-        public Boolean monitorBtw01And08Leakage;
+        private Boolean monitorBtw01And08Leakage;
         @JsonProperty("monitor_withdrawel_amount_limit_breach")
-        public Boolean monitorWithdrawelAmountLimitBreach;
+        private Boolean monitorWithdrawelAmountLimitBreach;
         @JsonProperty("detection_interval")
-        public Integer detectionInterval;
+        private Integer detectionInterval;
         @JsonProperty("impulse_ignore")
-        public Integer impulseIgnore;
+        private Integer impulseIgnore;
         @JsonProperty("time_ignore")
-        public Integer timeIgnore;
+        private Integer timeIgnore;
         @JsonProperty("pressure_tolerance_band")
-        public Integer pressureToleranceBand;
+        private Integer pressureToleranceBand;
         @JsonProperty("pressure_drop")
-        public Integer pressureDrop;
+        private Integer pressureDrop;
         @JsonProperty("detection_time")
-        public Integer detectionTime;
+        private Integer detectionTime;
         @JsonProperty("action_on_btw_0_1_and_0_8_leakage")
-        public Integer actionOnBtw01And08Leakage;
+        private Integer actionOnBtw01And08Leakage;
         @JsonProperty("action_on_withdrawel_amount_limit_breach")
-        public Integer actionOnWithdrawelAmountLimitBreach;
+        private Integer actionOnWithdrawelAmountLimitBreach;
         @JsonProperty("withdrawel_amount_limit")
-        public Integer withdrawelAmountLimit;
+        private Integer withdrawelAmountLimit;
         @JsonProperty("sprinkler_mode_start_time")
-        public Integer sprinklerModeStartTime;
+        private Integer sprinklerModeStartTime;
         @JsonProperty("sprinkler_mode_stop_time")
-        public Integer sprinklerModeStopTime;
+        private Integer sprinklerModeStopTime;
         @JsonProperty("sprinkler_mode_active_monday")
-        public Boolean sprinklerModeActiveMonday;
+        private Boolean sprinklerModeActiveMonday;
         @JsonProperty("sprinkler_mode_active_tuesday")
-        public Boolean sprinklerModeActiveTuesday;
+        private Boolean sprinklerModeActiveTuesday;
         @JsonProperty("sprinkler_mode_active_wednesday")
-        public Boolean sprinklerModeActiveWednesday;
+        private Boolean sprinklerModeActiveWednesday;
         @JsonProperty("sprinkler_mode_active_thursday")
-        public Boolean sprinklerModeActiveThursday;
+        private Boolean sprinklerModeActiveThursday;
         @JsonProperty("sprinkler_mode_active_friday")
-        public Boolean sprinklerModeActiveFriday;
+        private Boolean sprinklerModeActiveFriday;
         @JsonProperty("sprinkler_mode_active_saturday")
-        public Boolean sprinklerModeActiveSaturday;
+        private Boolean sprinklerModeActiveSaturday;
         @JsonProperty("sprinkler_mode_active_sunday")
-        public Boolean sprinklerModeActiveSunday;
+        private Boolean sprinklerModeActiveSunday;
 
         @Getter
         @Setter
@@ -120,13 +126,13 @@ public class Appliance {
         @JsonIgnoreProperties(ignoreUnknown = true)
         public class Threshold {
             @JsonProperty("quantity")
-            public String quantity;
+            private String quantity;
             @JsonProperty("type")
-            public String type;
+            private String type;
             @JsonProperty("value")
-            public Integer value;
+            private Integer value;
             @JsonProperty("enabled")
-            public Boolean enabled;
+            private Boolean enabled;
         }
     }
 }
