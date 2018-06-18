@@ -1,9 +1,11 @@
 package org.grohe.ondus.api;
 
+import org.grohe.ondus.api.actions.ApplianceAction;
 import org.grohe.ondus.api.actions.LocationAction;
 import org.grohe.ondus.api.actions.RoomAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
+import org.grohe.ondus.api.model.Appliance;
 import org.grohe.ondus.api.model.Authentication;
 import org.grohe.ondus.api.model.Location;
 import org.grohe.ondus.api.model.Room;
@@ -29,12 +31,14 @@ public class OndusServiceTest {
 
     private ApiClient mockApiClient;
     private Location location123;
+    private Room room123;
 
     @Before
     public void createMocks() {
         mockApiClient = mock(ApiClient.class);
         when(mockApiClient.getAction(any())).thenCallRealMethod();
         location123 = new Location(123);
+        room123 = new Room(123);
     }
 
     @Test(expected = LoginException.class)
@@ -109,6 +113,30 @@ public class OndusServiceTest {
         ondusService.getRoom(location123, 123);
 
         verify(roomAction).getRoom(any(Location.class), eq(123));
+    }
+
+    @Test
+    public void getAppliances_callsApplianceAction() throws Exception {
+        ApplianceAction applianceAction = mock(ApplianceAction.class);
+        when(applianceAction.getAppliances(any(Location.class), any(Room.class))).thenReturn(Collections.emptyList());
+        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.getAppliances(location123, room123);
+
+        verify(applianceAction).getAppliances(any(Location.class), any(Room.class));
+    }
+
+    @Test
+    public void getAppliance_callsApplianceAction() throws Exception {
+        ApplianceAction applianceAction = mock(ApplianceAction.class);
+        when(applianceAction.getAppliance(any(Location.class), any(Room.class), anyString())).thenReturn(Optional.of(new Appliance()));
+        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.getAppliance(location123, room123, "123");
+
+        verify(applianceAction).getAppliance(any(Location.class), any(Room.class), eq("123"));
     }
 
     private OndusService getOndusServiceWithApiClient() {
