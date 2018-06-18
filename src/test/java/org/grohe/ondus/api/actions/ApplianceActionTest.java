@@ -9,8 +9,8 @@ import org.grohe.ondus.api.model.Room;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -98,11 +98,9 @@ public class ApplianceActionTest {
     }
 
     @Test
-    public void getApplianceData_validApliance_returnsApplianceData() throws Exception {
-        when(mockApiResponse.getStatusCode()).thenReturn(200);
-        ApplianceData applianceData = new ApplianceData("123", new Appliance());
-        when(mockApiResponse.getContent()).thenReturn(Optional.of(applianceData));
-        when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/data"), any())).thenReturn(mockApiResponse);
+    public void getApplianceData_validAppliance_returnsApplianceData() throws Exception {
+        mockApplianceDataResponse("");
+
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
         Appliance appliance = new Appliance("123", room123);
@@ -112,5 +110,28 @@ public class ApplianceActionTest {
         assertTrue(actual.isPresent());
         assertEquals("123", actual.get().getApplianceId());
         assertEquals(appliance, actual.get().getAppliance());
+    }
+
+    @Test
+    public void getApplianceData_validApplianceWithRange_returnsApplianceData() throws Exception {
+        mockApplianceDataResponse("?from=2018-06-15&to=2018-06-18");
+
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+        Appliance appliance = new Appliance("123", room123);
+
+        Optional<ApplianceData> actual = action.getApplianceData(appliance, Instant.parse("2018-06-15T13:00:00.00Z"), Instant.parse("2018-06-18T13:00:00.00Z"));
+
+        assertTrue(actual.isPresent());
+        assertEquals("123", actual.get().getApplianceId());
+        assertEquals(appliance, actual.get().getAppliance());
+    }
+
+    private void mockApplianceDataResponse(String rangeText) throws java.io.IOException {
+        when(mockApiResponse.getStatusCode()).thenReturn(200);
+        ApplianceData applianceData = new ApplianceData("123", new Appliance());
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(applianceData));
+        when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/data"+
+                rangeText), any())).thenReturn(mockApiResponse);
     }
 }

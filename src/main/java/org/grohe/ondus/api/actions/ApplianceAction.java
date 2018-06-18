@@ -7,10 +7,9 @@ import org.grohe.ondus.api.model.ApplianceData;
 import org.grohe.ondus.api.model.Room;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
@@ -18,6 +17,7 @@ public class ApplianceAction extends AbstractAction {
     private static final String APPLIANCES_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances";
     private static final String APPLIANCE_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s";
     private static final String APPLIANCE_DATA_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/data";
+    private static final String APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/data?from=%s&to=%s";
 
     public List<Appliance> getAppliances(Room inRoom) throws IOException {
         ApiResponse<Appliance[]> locationsResponse = getApiClient()
@@ -48,8 +48,12 @@ public class ApplianceAction extends AbstractAction {
     }
 
     public Optional<ApplianceData> getApplianceData(Appliance appliance) throws IOException {
+        return this.getApplianceData(appliance, null, null);
+    }
+
+    public Optional<ApplianceData> getApplianceData(Appliance appliance, Instant from, Instant to) throws IOException {
         ApiResponse<ApplianceData> applianceApiResponse = getApiClient()
-                .get(String.format(APPLIANCE_DATA_URL_TEMPLATE, appliance.getRoom().getLocation().getId(), appliance.getRoom().getId(), appliance.getApplianceId()), ApplianceData.class);
+                .get(createApplianceDataRequestUrl(appliance, from, to), ApplianceData.class);
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
@@ -62,5 +66,19 @@ public class ApplianceAction extends AbstractAction {
         }
 
         return applianceOptional;
+    }
+
+    private String createApplianceDataRequestUrl(Appliance appliance, Instant from, Instant to) {
+        if (from == null || to == null) {
+            return String.format(APPLIANCE_DATA_URL_TEMPLATE, appliance.getRoom().getLocation().getId(),
+                    appliance.getRoom().getId(), appliance.getApplianceId());
+        }
+
+        return String.format(APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE, appliance.getRoom().getLocation().getId(),
+                appliance.getRoom().getId(), appliance.getApplianceId(), createOndusDateString(from), createOndusDateString(to));
+    }
+
+    private String createOndusDateString(Instant from) {
+        return new SimpleDateFormat("yyyy-MM-dd").format(Date.from(from));
     }
 }
