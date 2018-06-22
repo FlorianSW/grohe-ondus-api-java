@@ -5,10 +5,7 @@ import org.grohe.ondus.api.actions.LocationAction;
 import org.grohe.ondus.api.actions.LoginAction;
 import org.grohe.ondus.api.actions.RoomAction;
 import org.grohe.ondus.api.client.ApiClient;
-import org.grohe.ondus.api.model.Appliance;
-import org.grohe.ondus.api.model.ApplianceData;
-import org.grohe.ondus.api.model.Location;
-import org.grohe.ondus.api.model.Room;
+import org.grohe.ondus.api.model.*;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -79,5 +76,11 @@ public class OndusService {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         return action.getApplianceData(appliance);
+    }
+
+    public Optional<ApplianceCommand> getApplianceCommand(Appliance appliance) throws IOException {
+        ApplianceAction action = apiClient.getAction(ApplianceAction.class);
+
+        return action.getApplianceCommand(appliance);
     }
 }

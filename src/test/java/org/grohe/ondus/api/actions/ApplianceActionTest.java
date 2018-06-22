@@ -2,10 +2,7 @@ package org.grohe.ondus.api.actions;
 
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
-import org.grohe.ondus.api.model.Appliance;
-import org.grohe.ondus.api.model.ApplianceData;
-import org.grohe.ondus.api.model.Location;
-import org.grohe.ondus.api.model.Room;
+import org.grohe.ondus.api.model.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -121,6 +118,34 @@ public class ApplianceActionTest {
         Appliance appliance = new Appliance("123", room123);
 
         Optional<ApplianceData> actual = action.getApplianceData(appliance, Instant.parse("2018-06-15T13:00:00.00Z"), Instant.parse("2018-06-18T13:00:00.00Z"));
+
+        assertTrue(actual.isPresent());
+        assertEquals("123", actual.get().getApplianceId());
+        assertEquals(appliance, actual.get().getAppliance());
+    }
+
+    @Test
+    public void getApplianceCommand_invalidApliance_returnsEmptyOptional() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(404);
+        when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/command"), any())).thenReturn(mockApiResponse);
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+
+        Optional<ApplianceCommand> actual = action.getApplianceCommand(new Appliance("123", room123));
+
+        assertFalse(actual.isPresent());
+    }
+
+    @Test
+    public void getApplianceCommand_validAppliance_returnsApplianceCommand() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(200);
+        Appliance appliance = new Appliance("123", room123);
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(new ApplianceCommand(appliance)));
+        when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/command"), any())).thenReturn(mockApiResponse);
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+
+        Optional<ApplianceCommand> actual = action.getApplianceCommand(appliance);
 
         assertTrue(actual.isPresent());
         assertEquals("123", actual.get().getApplianceId());

@@ -148,6 +148,18 @@ public class OndusServiceTest {
         verify(applianceAction).getApplianceData(any(Appliance.class));
     }
 
+    @Test
+    public void getApplianceCommand_callsApplianceAction() throws Exception {
+        ApplianceAction applianceAction = mock(ApplianceAction.class);
+        when(applianceAction.getApplianceCommand(any(Appliance.class))).thenReturn(Optional.of(new ApplianceCommand()));
+        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.getApplianceCommand(new Appliance("123", room123));
+
+        verify(applianceAction).getApplianceCommand(any(Appliance.class));
+    }
+
     private OndusService getOndusServiceWithApiClient() {
         OndusService ondusService = new OndusService();
         ondusService.apiClient = mockApiClient;
