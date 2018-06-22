@@ -83,4 +83,19 @@ public class OndusService {
 
         return action.getApplianceCommand(appliance);
     }
+
+    public void setValveOpen(Appliance appliance, boolean open) throws IOException {
+        ApplianceAction action = apiClient.getAction(ApplianceAction.class);
+
+        Optional<ApplianceCommand> applianceCommandOptional = getApplianceCommand(appliance);
+        if (!applianceCommandOptional.isPresent()) {
+            return;
+        }
+        ApplianceCommand applianceCommand = applianceCommandOptional.get();
+        ApplianceCommand.Command command = applianceCommand.getCommand();
+        command.setValveOpen(open);
+        applianceCommand.setCommand(command);
+
+        action.putApplianceCommand(appliance, applianceCommand);
+    }
 }

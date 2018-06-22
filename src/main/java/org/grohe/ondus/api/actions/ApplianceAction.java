@@ -105,4 +105,12 @@ public class ApplianceAction extends AbstractAction {
 
         return applianceDataOptional;
     }
+
+    public void putApplianceCommand(Appliance appliance, ApplianceCommand command) throws IOException {
+        getApiClient().post(String.format(APPLIANCE_COMMAND_URL_TEMPLATE,
+                appliance.getRoom().getLocation().getId(),
+                appliance.getRoom().getId(),
+                appliance.getApplianceId()
+        ), command, ApplianceCommand.class);
+    }
 }

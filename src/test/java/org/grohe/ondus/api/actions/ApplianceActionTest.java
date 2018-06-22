@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ApplianceActionTest {
@@ -150,6 +151,20 @@ public class ApplianceActionTest {
         assertTrue(actual.isPresent());
         assertEquals("123", actual.get().getApplianceId());
         assertEquals(appliance, actual.get().getAppliance());
+    }
+
+    @Test
+    public void putApplianceCommand_validAppliance_callsCommandApi() throws Exception {
+        Appliance appliance = new Appliance("123", room123);
+        ApplianceCommand command = new ApplianceCommand(appliance);
+        command.setCommand(new ApplianceCommand.Command());
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+
+        action.putApplianceCommand(appliance, command);
+
+        verify(mockApiClient).post(eq("/v2/iot/locations/123/rooms/123/appliances/123/command"),
+                eq(command), eq(ApplianceCommand.class));
     }
 
     private void mockApplianceDataResponse(String rangeText) throws java.io.IOException {
