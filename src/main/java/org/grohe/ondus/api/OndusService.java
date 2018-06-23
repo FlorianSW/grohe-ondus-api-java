@@ -166,12 +166,28 @@ public class OndusService {
         return action.getApplianceData(appliance, from, to);
     }
 
+    /**
+     * Retrieves the current state of the appliances {@link ApplianceCommand} saved for the appliance in the
+     * GROHE account. This can be used to inspect the current state of the appliance and activated/queued commands.
+     *
+     * @param appliance The {@link Appliance} to retrieve command information from
+     * @return The {@link ApplianceCommand} of the appliance
+     * @throws IOException When a communication error occurs
+     */
     public Optional<ApplianceCommand> getApplianceCommand(Appliance appliance) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         return action.getApplianceCommand(appliance);
     }
 
+    /**
+     * Changes the valve state of the appliance. The call to this function is blocking until the API acknowledges the
+     * execution or failure of the command.
+     *
+     * @param appliance The appliance to change the valve state of
+     * @param open The requested valve state
+     * @throws IOException When a communication error occurs
+     */
     public void setValveOpen(Appliance appliance, boolean open) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
