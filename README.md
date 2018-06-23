@@ -19,17 +19,33 @@ contains a list of appliances):
 +-- Location
 |   +-- Room
 |   |   +-- Appliance
+|   |   |   +-- ApplianceData
+|   |   |   +-- ApplianceCommand
 |   |   +-- Appliance
+|   |   |   +-- ApplianceData
+|   |   |   +-- ApplianceCommand
 |   +-- Room
 |   |   +-- Appliance
+|   |   |   +-- ApplianceData
+|   |   |   +-- ApplianceCommand
 |   |   +-- Appliance
+|   |   |   +-- ApplianceData
+|   |   |   +-- ApplianceCommand
 +-- Location
 |   +-- Room
 |   |   +-- Appliance
+|   |   |   +-- ApplianceData
+|   |   |   +-- ApplianceCommand
 |   |   +-- Appliance
+|   |   |   +-- ApplianceData
+|   |   |   +-- ApplianceCommand
 |   +-- Room
 |   |   +-- Appliance
+|   |   |   +-- ApplianceData
+|   |   |   +-- ApplianceCommand
 |   |   +-- Appliance
+|   |   |   +-- ApplianceData
+|   |   |   +-- ApplianceCommand
 ````
 
 Where Appliances actually are devices from Grohe, where device information can be accessed and
