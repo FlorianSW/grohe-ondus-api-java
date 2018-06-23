@@ -80,3 +80,4 @@ class Example {
     }
 }
 ````
+* [JavaDoc](https://floriansw.github.io/grohe-ondus-api-java/org/grohe/ondus/api/OndusService.html)
