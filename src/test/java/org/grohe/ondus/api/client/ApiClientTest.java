@@ -72,7 +72,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void post_callsHttpClientWithPost() throws Exception {
+    public void post_callsHttpClientWithPostWithoutToken() throws Exception {
         when(mockHttpClient.execute(any())).thenReturn(getOkResponse());
         ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 

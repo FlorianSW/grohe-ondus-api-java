@@ -8,6 +8,7 @@ import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.security.auth.login.LoginException;
 import java.time.Instant;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import static org.grohe.ondus.api.TestResponse.A_TOKEN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -166,6 +168,40 @@ public class OndusServiceTest {
         ondusService.getApplianceData(new Appliance("123", room123), yesterday, now);
 
         verify(applianceAction).getApplianceData(any(Appliance.class), eq(yesterday), eq(now));
+    }
+
+    @Test
+    public void getApplianceCommand_callsApplianceAction() throws Exception {
+        ApplianceAction applianceAction = mock(ApplianceAction.class);
+        when(applianceAction.getApplianceCommand(any(Appliance.class))).thenReturn(Optional.of(new ApplianceCommand()));
+        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.getApplianceCommand(new Appliance("123", room123));
+
+        verify(applianceAction).getApplianceCommand(any(Appliance.class));
+    }
+
+    @Test
+    public void setValveOpen_callsApplianceActionWithApplianceCommand() throws Exception {
+        ApplianceAction applianceAction = mock(ApplianceAction.class);
+        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
+        when(applianceAction.getApplianceCommand(any(Appliance.class))).thenReturn(Optional.of(getMockApplianceCommand()));
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.setValveOpen(new Appliance("123", room123), true);
+
+        ArgumentCaptor<ApplianceCommand> applianceCommandCaptor = ArgumentCaptor.forClass(ApplianceCommand.class);
+        verify(applianceAction).putApplianceCommand(any(Appliance.class), applianceCommandCaptor.capture());
+        ApplianceCommand command = applianceCommandCaptor.getValue();
+        assertTrue(command.getCommand().getValveOpen());
+    }
+
+    private ApplianceCommand getMockApplianceCommand() {
+        ApplianceCommand applianceCommand = new ApplianceCommand(new Appliance("123", room123));
+        applianceCommand.setCommand(new ApplianceCommand.Command());
+
+        return applianceCommand;
     }
 
     private OndusService getOndusServiceWithApiClient() {

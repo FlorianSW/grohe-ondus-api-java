@@ -3,9 +3,11 @@ package org.grohe.ondus.api.actions;
 import lombok.NoArgsConstructor;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.Appliance;
+import org.grohe.ondus.api.model.ApplianceCommand;
 import org.grohe.ondus.api.model.ApplianceData;
 import org.grohe.ondus.api.model.Room;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -18,6 +20,7 @@ public class ApplianceAction extends AbstractAction {
     private static final String APPLIANCE_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s";
     private static final String APPLIANCE_DATA_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/data";
     private static final String APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/data?from=%s&to=%s";
+    private static final String APPLIANCE_COMMAND_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/command";
 
     public List<Appliance> getAppliances(Room inRoom) throws IOException {
         ApiResponse<Appliance[]> locationsResponse = getApiClient()
@@ -80,5 +83,34 @@ public class ApplianceAction extends AbstractAction {
 
     private String createOndusDateString(Instant from) {
         return new SimpleDateFormat("yyyy-MM-dd").format(Date.from(from));
+    }
+
+    public Optional<ApplianceCommand> getApplianceCommand(Appliance appliance) throws IOException {
+        ApiResponse<ApplianceCommand> applianceApiResponse = getApiClient()
+                .get(String.format(APPLIANCE_COMMAND_URL_TEMPLATE,
+                        appliance.getRoom().getLocation().getId(),
+                        appliance.getRoom().getId(),
+                        appliance.getApplianceId()
+                ), ApplianceCommand.class);
+        if (applianceApiResponse.getStatusCode() != 200) {
+            return Optional.empty();
+        }
+
+        Optional<ApplianceCommand> applianceDataOptional = applianceApiResponse.getContent();
+        if (applianceDataOptional.isPresent()) {
+            ApplianceCommand applianceData = applianceDataOptional.get();
+            applianceData.setAppliance(appliance);
+            applianceDataOptional = Optional.of(applianceData);
+        }
+
+        return applianceDataOptional;
+    }
+
+    public void putApplianceCommand(Appliance appliance, ApplianceCommand command) throws IOException {
+        getApiClient().post(String.format(APPLIANCE_COMMAND_URL_TEMPLATE,
+                appliance.getRoom().getLocation().getId(),
+                appliance.getRoom().getId(),
+                appliance.getApplianceId()
+        ), command, ApplianceCommand.class);
     }
 }

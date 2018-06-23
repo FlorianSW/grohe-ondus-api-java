@@ -52,6 +52,9 @@ public class ApiClient {
         post.setEntity(new ByteArrayEntity(serializedParameters.getBytes()));
 
         post.setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON);
+        if (token != null) {
+            post.setHeader(HEADER_AUTHORIZATION, token);
+        }
 
         HttpResponse response = httpClient.execute(post);
 
