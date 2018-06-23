@@ -157,6 +157,8 @@ public class OndusService {
      * instead of requesting all data from all time.
      *
      * @param appliance The {@link Appliance} to retrieve data from
+     * @param from Needs to be an instance of {@link Instant} which is at least one day before to
+     * @param to Needs to be an instance of {@link Instant} which is at least one day after from
      * @return The {@link ApplianceData} of the appliance in the given time range
      * @throws IOException When a communication error occurs
      */
