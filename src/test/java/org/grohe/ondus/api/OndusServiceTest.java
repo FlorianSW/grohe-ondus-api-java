@@ -10,8 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.security.auth.login.LoginException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.grohe.ondus.api.TestResponse.A_TOKEN;
 import static org.junit.Assert.assertEquals;
@@ -146,6 +151,21 @@ public class OndusServiceTest {
         ondusService.getApplianceData(new Appliance("123", room123));
 
         verify(applianceAction).getApplianceData(any(Appliance.class));
+    }
+
+    @Test
+    public void getApplianceData_withRange_callsApplianceAction() throws Exception {
+        ApplianceAction applianceAction = mock(ApplianceAction.class);
+        when(applianceAction.getApplianceData(any(Appliance.class), any(Instant.class), any(Instant.class)))
+                .thenReturn(Optional.of(new ApplianceData()));
+        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+        Instant now = Instant.now();
+        Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
+
+        ondusService.getApplianceData(new Appliance("123", room123), yesterday, now);
+
+        verify(applianceAction).getApplianceData(any(Appliance.class), eq(yesterday), eq(now));
     }
 
     private OndusService getOndusServiceWithApiClient() {
