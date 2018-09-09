@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'org.grohe'
-version '0.0.1-SNAPSHOT'
+version '0.0.3-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
@@ -32,10 +32,10 @@ bintray {
         licenses = ['MIT']
         vcsUrl = 'https://github.com/floriansw/grohe-ondus-api-java.git'
         version {
-            name = '0.0.1'
+            name = '0.0.3'
             desc = 'GROHE ONDUS Api library'
             released  = new Date()
-            vcsTag = '0.0.1'
+            vcsTag = '0.0.3'
         }
     }
 }
@@ -46,6 +46,12 @@ publishing {
             from components.java
             artifact sourcesJar
         }
+    }
+}
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 

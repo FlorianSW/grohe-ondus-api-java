@@ -13,11 +13,8 @@ import org.mockito.ArgumentCaptor;
 import javax.security.auth.login.LoginException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static org.grohe.ondus.api.TestResponse.A_TOKEN;
 import static org.junit.Assert.assertEquals;
@@ -134,7 +131,7 @@ public class OndusServiceTest {
     @Test
     public void getAppliance_callsApplianceAction() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getAppliance(any(Room.class), anyString())).thenReturn(Optional.of(new Appliance()));
+        when(applianceAction.getAppliance(any(Room.class), anyString())).thenReturn(Optional.of(new SenseGuardAppliance()));
         when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
         OndusService ondusService = getOndusServiceWithApiClient();
 
@@ -146,59 +143,59 @@ public class OndusServiceTest {
     @Test
     public void getApplianceData_callsApplianceAction() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getApplianceData(any(Appliance.class))).thenReturn(Optional.of(new ApplianceData()));
+        when(applianceAction.getApplianceData(any(SenseGuardAppliance.class))).thenReturn(Optional.of(new SenseGuardApplianceData()));
         when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
         OndusService ondusService = getOndusServiceWithApiClient();
 
-        ondusService.getApplianceData(new Appliance("123", room123));
+        ondusService.getApplianceData(new SenseGuardAppliance("123", room123));
 
-        verify(applianceAction).getApplianceData(any(Appliance.class));
+        verify(applianceAction).getApplianceData(any(SenseGuardAppliance.class));
     }
 
     @Test
     public void getApplianceData_withRange_callsApplianceAction() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getApplianceData(any(Appliance.class), any(Instant.class), any(Instant.class)))
-                .thenReturn(Optional.of(new ApplianceData()));
+        when(applianceAction.getApplianceData(any(SenseGuardAppliance.class), any(Instant.class), any(Instant.class)))
+                .thenReturn(Optional.of(new SenseGuardApplianceData()));
         when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
         OndusService ondusService = getOndusServiceWithApiClient();
         Instant now = Instant.now();
         Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
 
-        ondusService.getApplianceData(new Appliance("123", room123), yesterday, now);
+        ondusService.getApplianceData(new SenseGuardAppliance("123", room123), yesterday, now);
 
-        verify(applianceAction).getApplianceData(any(Appliance.class), eq(yesterday), eq(now));
+        verify(applianceAction).getApplianceData(any(SenseGuardAppliance.class), eq(yesterday), eq(now));
     }
 
     @Test
     public void getApplianceCommand_callsApplianceAction() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getApplianceCommand(any(Appliance.class))).thenReturn(Optional.of(new ApplianceCommand()));
+        when(applianceAction.getApplianceCommand(any(SenseGuardAppliance.class))).thenReturn(Optional.of(new ApplianceCommand()));
         when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
         OndusService ondusService = getOndusServiceWithApiClient();
 
-        ondusService.getApplianceCommand(new Appliance("123", room123));
+        ondusService.getApplianceCommand(new SenseGuardAppliance("123", room123));
 
-        verify(applianceAction).getApplianceCommand(any(Appliance.class));
+        verify(applianceAction).getApplianceCommand(any(SenseGuardAppliance.class));
     }
 
     @Test
     public void setValveOpen_callsApplianceActionWithApplianceCommand() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
         when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
-        when(applianceAction.getApplianceCommand(any(Appliance.class))).thenReturn(Optional.of(getMockApplianceCommand()));
+        when(applianceAction.getApplianceCommand(any(SenseGuardAppliance.class))).thenReturn(Optional.of(getMockApplianceCommand()));
         OndusService ondusService = getOndusServiceWithApiClient();
 
-        ondusService.setValveOpen(new Appliance("123", room123), true);
+        ondusService.setValveOpen(new SenseGuardAppliance("123", room123), true);
 
         ArgumentCaptor<ApplianceCommand> applianceCommandCaptor = ArgumentCaptor.forClass(ApplianceCommand.class);
-        verify(applianceAction).putApplianceCommand(any(Appliance.class), applianceCommandCaptor.capture());
+        verify(applianceAction).putApplianceCommand(any(SenseGuardAppliance.class), applianceCommandCaptor.capture());
         ApplianceCommand command = applianceCommandCaptor.getValue();
         assertTrue(command.getCommand().getValveOpen());
     }
 
     private ApplianceCommand getMockApplianceCommand() {
-        ApplianceCommand applianceCommand = new ApplianceCommand(new Appliance("123", room123));
+        ApplianceCommand applianceCommand = new ApplianceCommand(new SenseGuardAppliance("123", room123));
         applianceCommand.setCommand(new ApplianceCommand.Command());
 
         return applianceCommand;

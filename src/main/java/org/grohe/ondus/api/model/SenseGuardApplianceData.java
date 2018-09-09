@@ -1,6 +1,5 @@
 package org.grohe.ondus.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
@@ -14,20 +13,13 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@EqualsAndHashCode(of = "applianceId")
-public class ApplianceData {
-    @JsonProperty("appliance_id")
-    public String applianceId;
-    @JsonProperty("type")
-    public Integer type;
+@EqualsAndHashCode(callSuper = true)
+public class SenseGuardApplianceData extends BaseApplianceData {
     @JsonProperty("data")
     public Data data;
-    @JsonIgnore
-    public Appliance appliance = new Appliance();
 
-    public ApplianceData(String applianceId, Appliance appliance) {
-        this.applianceId = applianceId;
-        this.appliance = appliance;
+    public SenseGuardApplianceData(String applianceId, BaseAppliance appliance) {
+        super(applianceId, appliance);
     }
 
     @Getter

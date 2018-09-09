@@ -19,9 +19,9 @@ public class ApplianceCommand {
     public Integer type;
     public Command command;
     @JsonIgnore
-    private Appliance appliance = new Appliance();
+    private SenseGuardAppliance appliance = new SenseGuardAppliance();
 
-    public ApplianceCommand(Appliance forAppliance) {
+    public ApplianceCommand(SenseGuardAppliance forAppliance) {
         this.appliance = forAppliance;
         this.applianceId = forAppliance.getApplianceId();
     }
