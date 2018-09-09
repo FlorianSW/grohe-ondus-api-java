@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true, of = "")
+@EqualsAndHashCode(callSuper = true)
 public class SenseGuardAppliance extends BaseAppliance {
     public static final int TYPE = 103;
 
