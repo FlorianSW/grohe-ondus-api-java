@@ -1,7 +1,9 @@
 package org.grohe.ondus.api.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,18 +12,23 @@ import java.util.Optional;
 
 public class ApiResponse<T> {
     private T mappedContent;
-    private HttpResponse response;
+    private int statusCode;
     private String content;
 
     public ApiResponse(HttpResponse httpResponse, Class<T> targetClass) throws IOException {
-        this.response = httpResponse;
+        this.statusCode = httpResponse.getStatusLine().getStatusCode();
 
-        if (httpResponse.getStatusLine().getStatusCode() != 200) {
-            mappedContent = null;
-        } else {
-            extractContentFromResponse(httpResponse);
-            ObjectMapper mapper = new ObjectMapper();
-            mappedContent = mapper.readValue(content, targetClass);
+        HttpEntity responseEntity = httpResponse.getEntity();
+        try {
+            if (statusCode != 200) {
+                mappedContent = null;
+            } else {
+                extractContentFromResponse(httpResponse);
+                ObjectMapper mapper = new ObjectMapper();
+                mappedContent = mapper.readValue(content, targetClass);
+            }
+        } finally {
+            EntityUtils.consume(responseEntity);
         }
     }
 
@@ -50,6 +57,6 @@ public class ApiResponse<T> {
     }
 
     public int getStatusCode() {
-        return response.getStatusLine().getStatusCode();
+        return statusCode;
     }
 }
