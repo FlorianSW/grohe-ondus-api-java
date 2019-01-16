@@ -183,6 +183,20 @@ public class OndusService {
     }
 
     /**
+     * Retrieves the current status of the appliance. Note that the available properties of the returned ApplianceStatus
+     * object may differ from appliance type to appliance type.
+     *
+     * @param appliance The {@link BaseAppliance} to retrieve command information from
+     * @return The {@link ApplianceStatus} of the appliance
+     * @throws IOException When a communication error occurs
+     */
+    public Optional<ApplianceStatus> getApplianceStatus(BaseAppliance appliance) throws IOException {
+        ApplianceAction action = apiClient.getAction(ApplianceAction.class);
+
+        return action.getApplianceStatus(appliance);
+    }
+
+    /**
      * Changes the valve state of the appliance. The call to this function is blocking until the API acknowledges the
      * execution or failure of the command.
      *

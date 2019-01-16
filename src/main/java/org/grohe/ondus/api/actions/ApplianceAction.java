@@ -17,6 +17,7 @@ public class ApplianceAction extends AbstractAction {
     private static final String APPLIANCE_DATA_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/data";
     private static final String APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/data?from=%s&to=%s";
     private static final String APPLIANCE_COMMAND_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/command";
+    private static final String APPLIANCE_STATUS_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/status";
 
     public List<BaseAppliance> getAppliances(Room inRoom) throws IOException {
         ApiResponse<BaseAppliance[]> locationsResponse = getApiClient()
@@ -124,5 +125,27 @@ public class ApplianceAction extends AbstractAction {
                 appliance.getRoom().getId(),
                 appliance.getApplianceId()
         ), command, ApplianceCommand.class);
+    }
+
+    public Optional<ApplianceStatus> getApplianceStatus(BaseAppliance appliance) throws IOException {
+        ApiResponse<ApplianceStatus.ApplianceStatusModel[]> applianceApiResponse = getApiClient()
+                .get(String.format(APPLIANCE_STATUS_URL_TEMPLATE,
+                        appliance.getRoom().getLocation().getId(),
+                        appliance.getRoom().getId(),
+                        appliance.getApplianceId()
+                ), ApplianceStatus.ApplianceStatusModel[].class);
+        if (applianceApiResponse.getStatusCode() != 200) {
+            return Optional.empty();
+        }
+
+        Optional<ApplianceStatus.ApplianceStatusModel[]> applianceStatusesOptional = applianceApiResponse.getContent();
+        Optional<ApplianceStatus> applianceStatusOptional = Optional.empty();
+        if (applianceStatusesOptional.isPresent()) {
+            ApplianceStatus.ApplianceStatusModel[] applianceStatuses = applianceStatusesOptional.get();
+            ApplianceStatus applianceStatus = new ApplianceStatus(appliance, applianceStatuses);
+            applianceStatusOptional = Optional.of(applianceStatus);
+        }
+
+        return applianceStatusOptional;
     }
 }

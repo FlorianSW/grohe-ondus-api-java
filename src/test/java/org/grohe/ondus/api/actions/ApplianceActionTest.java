@@ -176,6 +176,33 @@ public class ApplianceActionTest {
     }
 
     @Test
+    public void getApplianceStatus_invalidApliance_returnsEmptyOptional() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(404);
+        when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/status"), any())).thenReturn(mockApiResponse);
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+
+        Optional<ApplianceStatus> actual = action.getApplianceStatus(new BaseAppliance("123", room123));
+
+        assertFalse(actual.isPresent());
+    }
+
+    @Test
+    public void getApplianceStatus_validAppliance_returnsApplianceCommand() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(200);
+        BaseAppliance appliance = new BaseAppliance("123", room123);
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(new ApplianceStatus(appliance)));
+        when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/status"), any())).thenReturn(mockApiResponse);
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+
+        Optional<ApplianceStatus> actual = action.getApplianceStatus(appliance);
+
+        assertTrue(actual.isPresent());
+        assertEquals("123", actual.get().getApplianceId());
+    }
+
+    @Test
     public void putApplianceCommand_validAppliance_callsCommandApi() throws Exception {
         SenseGuardAppliance appliance = new SenseGuardAppliance("123", room123);
         ApplianceCommand command = new ApplianceCommand(appliance);

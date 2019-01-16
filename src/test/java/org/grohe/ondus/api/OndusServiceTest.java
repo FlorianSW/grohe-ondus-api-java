@@ -180,6 +180,18 @@ public class OndusServiceTest {
     }
 
     @Test
+    public void getApplianceStatus_callsApplianceAction() throws Exception {
+        ApplianceAction applianceAction = mock(ApplianceAction.class);
+        when(applianceAction.getApplianceStatus(any(BaseAppliance.class))).thenReturn(Optional.of(new ApplianceStatus()));
+        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        ondusService.getApplianceStatus(new BaseAppliance("123", room123));
+
+        verify(applianceAction).getApplianceStatus(any(BaseAppliance.class));
+    }
+
+    @Test
     public void setValveOpen_callsApplianceActionWithApplianceCommand() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
         when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
