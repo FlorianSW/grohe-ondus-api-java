@@ -188,10 +188,10 @@ public class ApplianceActionTest {
     }
 
     @Test
-    public void getApplianceStatus_validAppliance_returnsApplianceCommand() throws Exception {
+    public void getApplianceStatus_validAppliance_returnsApplianceStatus() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(200);
         BaseAppliance appliance = new BaseAppliance("123", room123);
-        when(mockApiResponse.getContent()).thenReturn(Optional.of(new ApplianceStatus(appliance)));
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(new ApplianceStatus.ApplianceStatusModel[]{}));
         when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances/123/status"), any())).thenReturn(mockApiResponse);
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
