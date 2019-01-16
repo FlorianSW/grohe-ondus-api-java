@@ -50,6 +50,7 @@ publishing {
 }
 
 jar {
+    exclude('**/Main.class')
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
