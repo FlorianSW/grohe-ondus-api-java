@@ -31,18 +31,18 @@ public class ApplianceAction extends AbstractAction {
     }
 
     public Optional<BaseAppliance> getAppliance(Room inRoom, String applianceId) throws IOException {
-        ApiResponse<BaseApplianceList> applianceApiResponse = getApiClient()
-                .get(String.format(APPLIANCE_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId(), applianceId), BaseApplianceList.class);
+        ApiResponse<List> applianceApiResponse = getApiClient()
+                .get(String.format(APPLIANCE_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId(), applianceId), List.class);
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
 
         Optional<BaseAppliance> applianceOptional = Optional.empty();
-        Optional<BaseApplianceList> applianceListOptional = applianceApiResponse.getContent();
+        Optional<BaseApplianceList> applianceListOptional = applianceApiResponse.getContentAs(BaseApplianceList.class);
         if (applianceListOptional.isPresent()) {
             BaseApplianceList applianceList = applianceListOptional.get();
             if (applianceList.size() == 1) {
-                BaseAppliance appliance = (BaseAppliance) applianceList.get(0);
+                BaseAppliance appliance = applianceList.get(0);
                 switch (appliance.getType()) {
                     case SenseGuardAppliance.TYPE:
                         appliance = applianceApiResponse.getContentAs(SenseGuardApplianceList.class).get().get(0);
@@ -153,12 +153,12 @@ public class ApplianceAction extends AbstractAction {
         return applianceStatusOptional;
     }
 
-    static class BaseApplianceList<T> extends ArrayList<T> {
+    static class BaseApplianceList extends ArrayList<BaseAppliance> {
     }
 
-    static class SenseGuardApplianceList extends BaseApplianceList<SenseGuardAppliance> {
+    static class SenseGuardApplianceList extends ArrayList<SenseGuardAppliance> {
     }
 
-    static class SenseApplianceList extends BaseApplianceList<SenseAppliance> {
+    static class SenseApplianceList extends ArrayList<SenseAppliance> {
     }
 }
