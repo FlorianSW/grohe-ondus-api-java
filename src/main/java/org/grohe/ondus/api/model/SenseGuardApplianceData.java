@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -29,6 +31,8 @@ public class SenseGuardApplianceData extends BaseApplianceData {
     public static final class Data {
         @JsonProperty("measurement")
         public List<Measurement> measurement = null;
+        @JsonProperty("withdrawals")
+        public List<Withdrawals> withdrawals = null;
     }
 
     @Getter
@@ -44,5 +48,20 @@ public class SenseGuardApplianceData extends BaseApplianceData {
         public Float pressure;
         @JsonProperty("temperature_guard")
         public Float temperatureGuard;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static final class Withdrawals {
+        @JsonProperty("starttime")
+        public Date starttime;
+        @JsonProperty("stoptime")
+        public Date stoptime;
+        @JsonProperty("waterconsumption")
+        public Float waterconsumption;
+        @JsonProperty("maxflowrate")
+        public Float maxflowrate;
     }
 }
