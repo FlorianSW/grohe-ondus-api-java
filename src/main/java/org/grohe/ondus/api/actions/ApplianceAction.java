@@ -31,25 +31,29 @@ public class ApplianceAction extends AbstractAction {
     }
 
     public Optional<BaseAppliance> getAppliance(Room inRoom, String applianceId) throws IOException {
-        ApiResponse<BaseAppliance> applianceApiResponse = getApiClient()
-                .get(String.format(APPLIANCE_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId(), applianceId), BaseAppliance.class);
+        ApiResponse<BaseApplianceList> applianceApiResponse = getApiClient()
+                .get(String.format(APPLIANCE_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId(), applianceId), BaseApplianceList.class);
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
 
-        Optional<BaseAppliance> applianceOptional = applianceApiResponse.getContent();
-        if (applianceOptional.isPresent()) {
-            BaseAppliance appliance = applianceOptional.get();
-            switch (appliance.getType()) {
-                case SenseGuardAppliance.TYPE:
-                    appliance = applianceApiResponse.getContentAs(SenseGuardAppliance.class).get();
-                    break;
-                case SenseAppliance.TYPE:
-                    appliance = applianceApiResponse.getContentAs(SenseAppliance.class).get();
-                    break;
+        Optional<BaseAppliance> applianceOptional = Optional.empty();
+        Optional<BaseApplianceList> applianceListOptional = applianceApiResponse.getContent();
+        if (applianceListOptional.isPresent()) {
+            BaseApplianceList applianceList = applianceListOptional.get();
+            if (applianceList.size() == 1) {
+                BaseAppliance appliance = (BaseAppliance) applianceList.get(0);
+                switch (appliance.getType()) {
+                    case SenseGuardAppliance.TYPE:
+                        appliance = applianceApiResponse.getContentAs(SenseGuardApplianceList.class).get().get(0);
+                        break;
+                    case SenseAppliance.TYPE:
+                        appliance = applianceApiResponse.getContentAs(SenseApplianceList.class).get().get(0);
+                        break;
+                }
+                appliance.setRoom(inRoom);
+                applianceOptional = Optional.of(appliance);
             }
-            appliance.setRoom(inRoom);
-            applianceOptional = Optional.of(appliance);
         }
 
         return applianceOptional;
@@ -147,5 +151,14 @@ public class ApplianceAction extends AbstractAction {
         }
 
         return applianceStatusOptional;
+    }
+
+    static class BaseApplianceList<T> extends ArrayList<T> {
+    }
+
+    static class SenseGuardApplianceList extends BaseApplianceList<SenseGuardAppliance> {
+    }
+
+    static class SenseApplianceList extends BaseApplianceList<SenseAppliance> {
     }
 }
