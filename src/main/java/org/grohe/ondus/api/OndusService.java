@@ -13,6 +13,7 @@ import java.util.Optional;
 public class OndusService {
 
     private static final String BASE_URL = "https://idp-apigw.cloud.grohe.com";
+    private RefreshTokenResponse refreshToken;
     ApiClient apiClient;
     String token;
 
@@ -36,7 +37,7 @@ public class OndusService {
 
     /**
      * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
-     * the provided refresh token will be used to obtain a fresh access token from the GROHE Api, which will be saved
+     * the provided refreshAuthorization token will be used to obtain a fresh access token from the GROHE Api, which will be saved
      * in this {@link OndusService} instance.
      *
      * The access token currently is valid for one hour, however it will not be refreshed automatically. If it expires,
@@ -67,7 +68,8 @@ public class OndusService {
         service.apiClient = apiClient;
 
         RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
-        service.token = refreshTokenAction.refresh(refreshToken);
+        service.refreshToken = refreshTokenAction.refresh(refreshToken);
+        service.token = service.refreshToken.accessToken;
 
         apiClient.setToken(service.token);
         apiClient.setVersion(ApiClient.Version.v3);
@@ -75,6 +77,22 @@ public class OndusService {
     }
 
     OndusService() {
+    }
+
+    /**
+     * Refreshed the internally saved authorization information (if necessary) and uses the refreshed authorization for
+     * upcoming requests to the GROHE Api.
+     *
+     * @throws IOException
+     * @throws LoginException
+     */
+    public void refreshAuthorization() throws IOException, LoginException {
+        if (refreshToken == null) {
+            return;
+        }
+        RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
+        this.refreshToken = refreshTokenAction.refresh(refreshToken.refreshToken);
+        this.token = this.refreshToken.accessToken;
     }
 
     /**

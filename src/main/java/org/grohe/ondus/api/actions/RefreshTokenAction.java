@@ -13,9 +13,9 @@ import java.io.IOException;
 
 @NoArgsConstructor
 public class RefreshTokenAction extends AbstractAction {
-    private static final String REFRESH_URL = "/v3/iot/oidc/refresh";
+    private static final String REFRESH_URL = "/v3/iot/oidc/refreshAuthorization";
 
-    public String refresh(String refreshToken) throws IOException, LoginException {
+    public RefreshTokenResponse refresh(String refreshToken) throws IOException, LoginException {
         ApiResponse<RefreshTokenResponse> refreshTokenResponse = getApiClient()
                 .post(REFRESH_URL, new RefreshTokenRequest(refreshToken), RefreshTokenResponse.class);
 
@@ -24,8 +24,7 @@ public class RefreshTokenAction extends AbstractAction {
         }
         return refreshTokenResponse.getContent()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("Unknown response with code %d", refreshTokenResponse.getStatusCode())))
-                .accessToken;
+                        String.format("Unknown response with code %d", refreshTokenResponse.getStatusCode())));
     }
 
     @AllArgsConstructor

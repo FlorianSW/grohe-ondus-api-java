@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 
 public class TestResponse {
     public static final String A_TOKEN = "A_TOKEN";
+    public static final String ANOTHER_TOKEN = "ANOTHER_TOKEN";
     static final String VALID_LOGIN_RESPONSE = "{\n" +
             "    \"token\": \"" + A_TOKEN + "\",\n" +
             "    \"uid\": \"550e8400-e29b-11d4-a716-446655440000\",\n" +
