@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @NoArgsConstructor
 public class RefreshTokenAction extends AbstractAction {
-    private static final String REFRESH_URL = "/v3/iot/oidc/refreshAuthorization";
+    private static final String REFRESH_URL = "/v3/iot/oidc/refresh";
 
     public RefreshTokenResponse refresh(String refreshToken) throws IOException, LoginException {
         ApiResponse<RefreshTokenResponse> refreshTokenResponse = getApiClient()

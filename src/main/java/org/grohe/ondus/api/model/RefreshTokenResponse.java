@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,4 +17,12 @@ public class RefreshTokenResponse {
     public String accessToken;
     @JsonProperty("refresh_token")
     public String refreshToken;
+    @JsonProperty("expires_in")
+    public int expiresIn;
+
+    private final Instant createdAt = Instant.now();
+
+    public Instant expiresAt() {
+        return createdAt.plusSeconds(expiresIn);
+    }
 }

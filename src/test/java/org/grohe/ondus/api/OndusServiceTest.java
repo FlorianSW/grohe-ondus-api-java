@@ -15,6 +15,7 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -75,18 +76,18 @@ public class OndusServiceTest {
     public void login_invalidRefreshToken_throwsAccessDeniedException() throws Exception {
         ApiResponse mockApiResponse = mock(ApiResponse.class);
         when(mockApiResponse.getStatusCode()).thenReturn(401);
-        when(mockApiClient.post(eq("/v3/iot/oidc/refreshAuthorization"), any(), eq(RefreshTokenResponse.class))).thenReturn(mockApiResponse);
+        when(mockApiClient.post(eq("/v3/iot/oidc/refresh"), any(), eq(RefreshTokenResponse.class))).thenReturn(mockApiResponse);
 
         OndusService.login("A_REFRESH_TOKEN", mockApiClient);
     }
 
     @Test
     public void login_validRefreshToken_returnsOndusService() throws Exception {
-        RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse(A_TOKEN, A_REFRESH_TOKEN);
+        RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse(A_TOKEN, A_REFRESH_TOKEN, 1);
         ApiResponse mockApiResponse = mock(ApiResponse.class);
         when(mockApiResponse.getContent()).thenReturn(Optional.of(refreshTokenResponse));
         when(mockApiClient.post(
-                eq("/v3/iot/oidc/refreshAuthorization"),
+                eq("/v3/iot/oidc/refresh"),
                 eq(new RefreshTokenAction.RefreshTokenRequest(A_REFRESH_TOKEN)),
                 eq(RefreshTokenResponse.class))
         ).thenReturn(mockApiResponse);
@@ -103,15 +104,15 @@ public class OndusServiceTest {
     public void refreshAuthorization_refreshesToken() throws Exception {
         ApiResponse mockApiResponse = mock(ApiResponse.class);
         when(mockApiResponse.getContent())
-                .thenReturn(Optional.of(new RefreshTokenResponse(A_TOKEN, A_REFRESH_TOKEN)))
-                .thenReturn(Optional.of(new RefreshTokenResponse(ANOTHER_TOKEN, ANOTHER_TOKEN)));
+                .thenReturn(Optional.of(new RefreshTokenResponse(A_TOKEN, A_REFRESH_TOKEN, 1)))
+                .thenReturn(Optional.of(new RefreshTokenResponse(ANOTHER_TOKEN, ANOTHER_TOKEN, 1)));
         when(mockApiClient.post(
-                eq("/v3/iot/oidc/refreshAuthorization"),
+                eq("/v3/iot/oidc/refresh"),
                 eq(new RefreshTokenAction.RefreshTokenRequest(A_REFRESH_TOKEN)),
                 eq(RefreshTokenResponse.class))
         ).thenReturn(mockApiResponse);
         when(mockApiClient.post(
-                eq("/v3/iot/oidc/refreshAuthorization"),
+                eq("/v3/iot/oidc/refresh"),
                 eq(new RefreshTokenAction.RefreshTokenRequest(ANOTHER_TOKEN)),
                 eq(RefreshTokenResponse.class))
         ).thenReturn(mockApiResponse);
@@ -128,7 +129,31 @@ public class OndusServiceTest {
 
         ondusService.refreshAuthorization();
 
-        verify(mockApiClient, never()).post(eq("/v3/iot/oidc/refreshAuthorization"), any(), any());
+        verify(mockApiClient, never()).post(eq("/v3/iot/oidc/refresh"), any(), any());
+    }
+
+    @Test
+    public void authorizationExpiresIn_usernamePassword_never() {
+        OndusService ondusService = getOndusServiceWithApiClient();
+
+        assertEquals(Instant.MAX, ondusService.authorizationExpiresAt());
+    }
+
+    @Test
+    public void authorizationExpiresIn_refreshToken_returnsAccessTokenExpiresAt() throws Exception {
+        RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse(A_TOKEN, A_REFRESH_TOKEN, 10);
+        ApiResponse mockApiResponse = mock(ApiResponse.class);
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(refreshTokenResponse));
+        when(mockApiClient.post(
+                eq("/v3/iot/oidc/refresh"),
+                eq(new RefreshTokenAction.RefreshTokenRequest(A_REFRESH_TOKEN)),
+                eq(RefreshTokenResponse.class))
+        ).thenReturn(mockApiResponse);
+
+        Instant expiresAt = Instant.now().plusSeconds(10);
+        OndusService actualService = OndusService.login(A_REFRESH_TOKEN, mockApiClient);
+
+        assertEquals(expiresAt.truncatedTo(ChronoUnit.SECONDS), actualService.authorizationExpiresAt().truncatedTo(ChronoUnit.SECONDS));
     }
 
     @Test

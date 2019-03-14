@@ -80,6 +80,20 @@ public class OndusService {
     }
 
     /**
+     * Returns the time at which the internally saved authorization will expire. It is advised that users of this class
+     * use this value after logging in to ensure that the authorization is refreshed before it actually expires.
+     * Actually refreshing the authorization is done by {@link #refreshAuthorization()}.
+     *
+     * @return The point in time when the authorization is expired
+     */
+    public Instant authorizationExpiresAt() {
+        if (refreshToken == null) {
+            return Instant.MAX;
+        }
+        return refreshToken.expiresAt();
+    }
+
+    /**
      * Refreshed the internally saved authorization information (if necessary) and uses the refreshed authorization for
      * upcoming requests to the GROHE Api.
      *
