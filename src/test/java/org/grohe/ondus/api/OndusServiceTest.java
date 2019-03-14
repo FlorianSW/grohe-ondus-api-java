@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class OndusServiceTest {
     private static final String A_USERNAME = "A_USERNAME";
     private static final String A_PASSWORD = "A_PASSWORD";
-    public static final String A_REFRESH_TOKEN = "A_REFRESH_TOKEN";
+    private static final String A_REFRESH_TOKEN = "A_REFRESH_TOKEN";
 
     private ApiClient mockApiClient;
     private Location location123;
@@ -94,6 +94,7 @@ public class OndusServiceTest {
         assertNotNull(actualService);
         assertEquals(A_TOKEN, actualService.token);
         verify(mockApiClient).setToken(anyString());
+        verify(mockApiClient).setVersion(ApiClient.Version.v3);
     }
 
     @Test

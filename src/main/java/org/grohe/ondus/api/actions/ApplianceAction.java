@@ -12,16 +12,16 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class ApplianceAction extends AbstractAction {
-    private static final String APPLIANCES_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances";
-    private static final String APPLIANCE_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s";
-    private static final String APPLIANCE_DATA_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/data";
-    private static final String APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/data?from=%s&to=%s";
-    private static final String APPLIANCE_COMMAND_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/command";
-    private static final String APPLIANCE_STATUS_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d/appliances/%s/status";
+    private static final String APPLIANCES_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances";
+    private static final String APPLIANCE_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s";
+    private static final String APPLIANCE_DATA_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/data";
+    private static final String APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/data?from=%s&to=%s";
+    private static final String APPLIANCE_COMMAND_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/command";
+    private static final String APPLIANCE_STATUS_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/status";
 
     public List<BaseAppliance> getAppliances(Room inRoom) throws IOException {
         ApiResponse<BaseAppliance[]> locationsResponse = getApiClient()
-                .get(String.format(APPLIANCES_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId()), BaseAppliance[].class);
+                .get(String.format(getApiClient().apiPath() + APPLIANCES_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId()), BaseAppliance[].class);
         if (locationsResponse.getStatusCode() != 200) {
             return Collections.emptyList();
         }
@@ -32,7 +32,7 @@ public class ApplianceAction extends AbstractAction {
 
     public Optional<BaseAppliance> getAppliance(Room inRoom, String applianceId) throws IOException {
         ApiResponse<List> applianceApiResponse = getApiClient()
-                .get(String.format(APPLIANCE_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId(), applianceId), List.class);
+                .get(String.format(getApiClient().apiPath() + APPLIANCE_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId(), applianceId), List.class);
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
@@ -90,11 +90,11 @@ public class ApplianceAction extends AbstractAction {
 
     private String createApplianceDataRequestUrl(BaseAppliance appliance, Instant from, Instant to) {
         if (from == null || to == null) {
-            return String.format(APPLIANCE_DATA_URL_TEMPLATE, appliance.getRoom().getLocation().getId(),
+            return String.format(getApiClient().apiPath() + APPLIANCE_DATA_URL_TEMPLATE, appliance.getRoom().getLocation().getId(),
                     appliance.getRoom().getId(), appliance.getApplianceId());
         }
 
-        return String.format(APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE, appliance.getRoom().getLocation().getId(),
+        return String.format(getApiClient().apiPath() + APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE, appliance.getRoom().getLocation().getId(),
                 appliance.getRoom().getId(), appliance.getApplianceId(), createOndusDateString(from), createOndusDateString(to));
     }
 
@@ -104,7 +104,7 @@ public class ApplianceAction extends AbstractAction {
 
     public Optional<ApplianceCommand> getApplianceCommand(SenseGuardAppliance appliance) throws IOException {
         ApiResponse<ApplianceCommand> applianceApiResponse = getApiClient()
-                .get(String.format(APPLIANCE_COMMAND_URL_TEMPLATE,
+                .get(String.format(getApiClient().apiPath() + APPLIANCE_COMMAND_URL_TEMPLATE,
                         appliance.getRoom().getLocation().getId(),
                         appliance.getRoom().getId(),
                         appliance.getApplianceId()
@@ -124,7 +124,7 @@ public class ApplianceAction extends AbstractAction {
     }
 
     public void putApplianceCommand(SenseGuardAppliance appliance, ApplianceCommand command) throws IOException {
-        getApiClient().post(String.format(APPLIANCE_COMMAND_URL_TEMPLATE,
+        getApiClient().post(String.format(getApiClient().apiPath() + APPLIANCE_COMMAND_URL_TEMPLATE,
                 appliance.getRoom().getLocation().getId(),
                 appliance.getRoom().getId(),
                 appliance.getApplianceId()
@@ -133,7 +133,7 @@ public class ApplianceAction extends AbstractAction {
 
     public Optional<ApplianceStatus> getApplianceStatus(BaseAppliance appliance) throws IOException {
         ApiResponse<ApplianceStatus.ApplianceStatusModel[]> applianceApiResponse = getApiClient()
-                .get(String.format(APPLIANCE_STATUS_URL_TEMPLATE,
+                .get(String.format(getApiClient().apiPath() + APPLIANCE_STATUS_URL_TEMPLATE,
                         appliance.getRoom().getLocation().getId(),
                         appliance.getRoom().getId(),
                         appliance.getApplianceId()

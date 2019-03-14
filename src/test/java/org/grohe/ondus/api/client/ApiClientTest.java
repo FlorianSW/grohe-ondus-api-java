@@ -51,6 +51,21 @@ public class ApiClientTest {
     }
 
     @Test
+    public void get_v3_callsHttpClientWithBearerToken() throws Exception {
+        when(mockHttpClient.execute(any())).thenReturn(getOkResponse());
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
+        client.setToken(A_TOKEN);
+        client.setVersion(ApiClient.Version.v3);
+
+        client.get("/v2/info", Object.class);
+
+        ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+        verify(mockHttpClient).execute(captor.capture());
+        HttpGet actualRequest = captor.getValue();
+        assertEquals("Bearer " + A_TOKEN, actualRequest.getHeaders("Authorization")[0].getValue());
+    }
+
+    @Test
     public void get_non200Response_returnsEmptyOptional() throws Exception {
         when(mockHttpClient.execute(any())).thenReturn(EXAMPLE_RESPONSE_500);
         ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
@@ -109,6 +124,22 @@ public class ApiClientTest {
         TestAction action = client.getAction(TestAction.class);
 
         assertEquals(client, action.getApiClient());
+    }
+
+    @Test
+    public void apiPath_v2_returnsV2() {
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
+        client.setVersion(ApiClient.Version.v2);
+
+        assertEquals("/v2/", client.apiPath());
+    }
+
+    @Test
+    public void apiPath_v3_returnsV3() {
+        ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
+        client.setVersion(ApiClient.Version.v3);
+
+        assertEquals("/v3/", client.apiPath());
     }
 
     @NoArgsConstructor

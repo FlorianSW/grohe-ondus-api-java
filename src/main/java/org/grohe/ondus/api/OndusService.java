@@ -36,10 +36,10 @@ public class OndusService {
 
     /**
      * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
-     * the provided credentials will be checked against the GROHE Api and an access token will be saved in this
-     * {@link OndusService} instance.
+     * the provided refresh token will be used to obtain a fresh access token from the GROHE Api, which will be saved
+     * in this {@link OndusService} instance.
      *
-     * The access token currently is valid for 6 months, however it will not be refreshed automatically. If it expires,
+     * The access token currently is valid for one hour, however it will not be refreshed automatically. If it expires,
      * you need to create a new instance of {@link OndusService}.
      *
      * @param refreshToken The refreshToken of the GROHE account
@@ -70,6 +70,7 @@ public class OndusService {
         service.token = refreshTokenAction.refresh(refreshToken);
 
         apiClient.setToken(service.token);
+        apiClient.setVersion(ApiClient.Version.v3);
         return service;
     }
 

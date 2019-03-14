@@ -22,6 +22,7 @@ public class LocationActionTest {
     @Before
     public void createMocks() {
         mockApiClient = mock(ApiClient.class);
+        when(mockApiClient.apiPath()).thenReturn("/v2/");
         mockApiResponse = mock(ApiResponse.class);
     }
 
@@ -44,6 +45,21 @@ public class LocationActionTest {
         when(mockApiClient.get(eq("/v2/iot/locations"), any())).thenReturn(mockApiResponse);
         LocationAction action = new LocationAction();
         action.setApiClient(mockApiClient);
+
+        List<Location> actualList = action.getLocations();
+
+        assertEquals(2, actualList.size());
+    }
+
+    @Test
+    public void getLocations_v3_returnsListOfLocations() throws Exception {
+        ApiClient mockV3ApiClient = mock(ApiClient.class);
+        when(mockApiResponse.getStatusCode()).thenReturn(200);
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(new Location[]{new Location(), new Location()}));
+        when(mockV3ApiClient.get(eq("/v3/iot/locations"), any())).thenReturn(mockApiResponse);
+        when(mockV3ApiClient.apiPath()).thenReturn("/v3/");
+        LocationAction action = new LocationAction();
+        action.setApiClient(mockV3ApiClient);
 
         List<Location> actualList = action.getLocations();
 

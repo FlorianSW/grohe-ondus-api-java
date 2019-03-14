@@ -19,13 +19,30 @@ import static org.mockito.Mockito.when;
 public class RoomActionTest {
     private ApiClient mockApiClient;
     private ApiResponse mockApiResponse;
-    private Location location123;
+    private Location room123;
 
     @Before
     public void createMocks() {
         mockApiClient = mock(ApiClient.class);
+        when(mockApiClient.apiPath()).thenReturn("/v2/");
         mockApiResponse = mock(ApiResponse.class);
-        location123 = new Location(123);
+        room123 = new Location(123);
+    }
+
+    @Test
+    public void getRooms_v3_returnsListOfRooms() throws Exception {
+        ApiClient mockV3ApiClient = mock(ApiClient.class);
+        when(mockApiResponse.getStatusCode()).thenReturn(200);
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(new Room[]{new Room(), new Room()}));
+        when(mockV3ApiClient.get(eq("/v3/iot/locations/123/rooms"), any())).thenReturn(mockApiResponse);
+        when(mockV3ApiClient.apiPath()).thenReturn("/v3/");
+        RoomAction action = new RoomAction();
+        action.setApiClient(mockV3ApiClient);
+
+        List<Room> actualList = action.getRooms(room123);
+
+        assertEquals(2, actualList.size());
+        actualList.forEach(room -> assertEquals(123, room.getLocation().getId()));
     }
 
     @Test
@@ -35,20 +52,20 @@ public class RoomActionTest {
         RoomAction action = new RoomAction();
         action.setApiClient(mockApiClient);
 
-        List<Room> actualList = action.getRooms(location123);
+        List<Room> actualList = action.getRooms(room123);
 
         assertEquals(0, actualList.size());
     }
 
     @Test
-    public void getRooms_validResponse_returnsListOfLocations() throws Exception {
+    public void getRooms_validResponse_returnsListOfRooms() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(200);
         when(mockApiResponse.getContent()).thenReturn(Optional.of(new Room[]{new Room(), new Room()}));
         when(mockApiClient.get(eq("/v2/iot/locations/123/rooms"), any())).thenReturn(mockApiResponse);
         RoomAction action = new RoomAction();
         action.setApiClient(mockApiClient);
 
-        List<Room> actualList = action.getRooms(location123);
+        List<Room> actualList = action.getRooms(room123);
 
         assertEquals(2, actualList.size());
         actualList.forEach(room -> assertEquals(123, room.getLocation().getId()));
@@ -61,7 +78,7 @@ public class RoomActionTest {
         RoomAction action = new RoomAction();
         action.setApiClient(mockApiClient);
 
-        Optional<Room> actual = action.getRoom(location123, 123);
+        Optional<Room> actual = action.getRoom(room123, 123);
 
         assertFalse(actual.isPresent());
     }
@@ -75,7 +92,7 @@ public class RoomActionTest {
         RoomAction action = new RoomAction();
         action.setApiClient(mockApiClient);
 
-        Optional<Room> actual = action.getRoom(location123, 123);
+        Optional<Room> actual = action.getRoom(room123, 123);
 
         assertTrue(actual.isPresent());
         assertEquals(123, actual.get().getId());
