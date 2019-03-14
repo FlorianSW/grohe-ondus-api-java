@@ -26,3 +26,4 @@ hs_err_pid*
 .idea
 .gradle
 build
+src/main/java/org/grohe/ondus/api/Main.java

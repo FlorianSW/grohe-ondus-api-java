@@ -2,6 +2,7 @@ package org.grohe.ondus.api;
 
 import org.grohe.ondus.api.actions.ApplianceAction;
 import org.grohe.ondus.api.actions.LocationAction;
+import org.grohe.ondus.api.actions.RefreshTokenAction;
 import org.grohe.ondus.api.actions.RoomAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.*;
 public class OndusServiceTest {
     private static final String A_USERNAME = "A_USERNAME";
     private static final String A_PASSWORD = "A_PASSWORD";
+    public static final String A_REFRESH_TOKEN = "A_REFRESH_TOKEN";
 
     private ApiClient mockApiClient;
     private Location location123;
@@ -46,8 +48,7 @@ public class OndusServiceTest {
     public void login_invalidUsernamePassword_throwsAccessDeniedException() throws Exception {
         ApiResponse mockApiResponse = mock(ApiResponse.class);
         when(mockApiResponse.getStatusCode()).thenReturn(441);
-        when(mockApiClient.post(any(), any(), eq(Authentication.class)))
-                .thenReturn(mockApiResponse);
+        when(mockApiClient.post(eq("/v2/iot/auth/users/login"), any(), eq(Authentication.class))).thenReturn(mockApiResponse);
 
         OndusService.login(A_USERNAME, A_PASSWORD, mockApiClient);
     }
@@ -62,6 +63,33 @@ public class OndusServiceTest {
                 .thenReturn(mockApiResponse);
 
         OndusService actualService = OndusService.login(A_USERNAME, A_PASSWORD, mockApiClient);
+
+        assertNotNull(actualService);
+        assertEquals(A_TOKEN, actualService.token);
+        verify(mockApiClient).setToken(anyString());
+    }
+
+    @Test(expected = LoginException.class)
+    public void login_invalidRefreshToken_throwsAccessDeniedException() throws Exception {
+        ApiResponse mockApiResponse = mock(ApiResponse.class);
+        when(mockApiResponse.getStatusCode()).thenReturn(401);
+        when(mockApiClient.post(eq("/v3/iot/oidc/refresh"), any(), eq(RefreshTokenResponse.class))).thenReturn(mockApiResponse);
+
+        OndusService.login("A_REFRESH_TOKEN", mockApiClient);
+    }
+
+    @Test
+    public void login_validRefreshToken_returnsOndusService() throws Exception {
+        RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse(A_TOKEN);
+        ApiResponse mockApiResponse = mock(ApiResponse.class);
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(refreshTokenResponse));
+        when(mockApiClient.post(
+                eq("/v3/iot/oidc/refresh"),
+                eq(new RefreshTokenAction.RefreshTokenRequest(A_REFRESH_TOKEN)),
+                eq(RefreshTokenResponse.class))
+        ).thenReturn(mockApiResponse);
+
+        OndusService actualService = OndusService.login(A_REFRESH_TOKEN, mockApiClient);
 
         assertNotNull(actualService);
         assertEquals(A_TOKEN, actualService.token);

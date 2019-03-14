@@ -1,9 +1,6 @@
 package org.grohe.ondus.api;
 
-import org.grohe.ondus.api.actions.ApplianceAction;
-import org.grohe.ondus.api.actions.LocationAction;
-import org.grohe.ondus.api.actions.LoginAction;
-import org.grohe.ondus.api.actions.RoomAction;
+import org.grohe.ondus.api.actions.*;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.model.*;
 
@@ -37,12 +34,40 @@ public class OndusService {
         return login(username, password, new ApiClient(BASE_URL));
     }
 
+    /**
+     * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
+     * the provided credentials will be checked against the GROHE Api and an access token will be saved in this
+     * {@link OndusService} instance.
+     *
+     * The access token currently is valid for 6 months, however it will not be refreshed automatically. If it expires,
+     * you need to create a new instance of {@link OndusService}.
+     *
+     * @param refreshToken The refreshToken of the GROHE account
+     * @return An initialized instance of {@link OndusService} with the username or password
+     * @throws IOException When a communication error occurs
+     * @throws LoginException If the login credentials are rejected by the API
+     */
+    public static OndusService login(String refreshToken) throws IOException, LoginException {
+        return login(refreshToken, new ApiClient(BASE_URL));
+    }
+
     static OndusService login(String username, String password, ApiClient apiClient) throws IOException, LoginException {
         OndusService service = new OndusService();
         service.apiClient = apiClient;
 
         LoginAction loginAction = apiClient.getAction(LoginAction.class);
         service.token = loginAction.getToken(username, password);
+
+        apiClient.setToken(service.token);
+        return service;
+    }
+
+    static OndusService login(String refreshToken, ApiClient apiClient) throws IOException, LoginException {
+        OndusService service = new OndusService();
+        service.apiClient = apiClient;
+
+        RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
+        service.token = refreshTokenAction.refresh(refreshToken);
 
         apiClient.setToken(service.token);
         return service;
