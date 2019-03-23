@@ -116,8 +116,9 @@ public class OndusServiceTest {
         ).thenReturn(mockApiResponse);
 
         OndusService actualService = OndusService.login(A_REFRESH_TOKEN, mockApiClient);
-        actualService.refreshAuthorization();
+        String refreshToken = actualService.refreshAuthorization();
 
+        assertEquals(ANOTHER_TOKEN, refreshToken);
         verify(mockApiClient).setToken(ANOTHER_TOKEN);
     }
 

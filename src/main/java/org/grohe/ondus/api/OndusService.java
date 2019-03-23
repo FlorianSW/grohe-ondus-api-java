@@ -13,7 +13,7 @@ import java.util.Optional;
 public class OndusService {
 
     private static final String BASE_URL = "https://idp-apigw.cloud.grohe.com";
-    private RefreshTokenResponse refreshToken;
+    private RefreshTokenResponse refreshTokenResponse;
     ApiClient apiClient;
 
     /**
@@ -42,7 +42,7 @@ public class OndusService {
      * The access token currently is valid for one hour, however it will not be refreshed automatically. If it expires,
      * you need to create a new instance of {@link OndusService}.
      *
-     * @param refreshToken The refreshToken of the GROHE account
+     * @param refreshToken The refreshTokenResponse of the GROHE account
      * @return An initialized instance of {@link OndusService} with the username or password
      * @throws IOException When a communication error occurs
      * @throws LoginException If the login credentials are rejected by the API
@@ -66,9 +66,9 @@ public class OndusService {
         service.apiClient = apiClient;
 
         RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
-        service.refreshToken = refreshTokenAction.refresh(refreshToken);
+        service.refreshTokenResponse = refreshTokenAction.refresh(refreshToken);
 
-        apiClient.setToken(service.refreshToken.accessToken);
+        apiClient.setToken(service.refreshTokenResponse.accessToken);
         apiClient.setVersion(ApiClient.Version.v3);
         return service;
     }
@@ -84,26 +84,29 @@ public class OndusService {
      * @return The point in time when the authorization is expired
      */
     public Instant authorizationExpiresAt() {
-        if (refreshToken == null) {
+        if (refreshTokenResponse == null) {
             return Instant.MAX;
         }
-        return refreshToken.expiresAt();
+        return refreshTokenResponse.expiresAt();
     }
 
     /**
      * Refreshed the internally saved authorization information (if necessary) and uses the refreshed authorization for
      * upcoming requests to the GROHE Api.
      *
+     * @return Returns the new refreshToken, which is also now saved internally in the service
      * @throws IOException
      * @throws LoginException
      */
-    public void refreshAuthorization() throws IOException, LoginException {
-        if (refreshToken == null) {
-            return;
+    public String refreshAuthorization() throws IOException, LoginException {
+        if (refreshTokenResponse == null) {
+            return null;
         }
         RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
-        this.refreshToken = refreshTokenAction.refresh(refreshToken.refreshToken);
-        apiClient.setToken(this.refreshToken.accessToken);
+        this.refreshTokenResponse = refreshTokenAction.refresh(refreshTokenResponse.refreshToken);
+        apiClient.setToken(this.refreshTokenResponse.accessToken);
+
+        return refreshTokenResponse.refreshToken;
     }
 
     /**
