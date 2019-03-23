@@ -68,7 +68,6 @@ public class OndusServiceTest {
         OndusService actualService = OndusService.login(A_USERNAME, A_PASSWORD, mockApiClient);
 
         assertNotNull(actualService);
-        assertEquals(A_TOKEN, actualService.token);
         verify(mockApiClient).setToken(anyString());
     }
 
@@ -95,7 +94,6 @@ public class OndusServiceTest {
         OndusService actualService = OndusService.login(A_REFRESH_TOKEN, mockApiClient);
 
         assertNotNull(actualService);
-        assertEquals(A_TOKEN, actualService.token);
         verify(mockApiClient).setToken(anyString());
         verify(mockApiClient).setVersion(ApiClient.Version.v3);
     }
@@ -120,7 +118,7 @@ public class OndusServiceTest {
         OndusService actualService = OndusService.login(A_REFRESH_TOKEN, mockApiClient);
         actualService.refreshAuthorization();
 
-        assertEquals(ANOTHER_TOKEN, actualService.token);
+        verify(mockApiClient).setToken(ANOTHER_TOKEN);
     }
 
     @Test

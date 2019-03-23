@@ -15,7 +15,6 @@ public class OndusService {
     private static final String BASE_URL = "https://idp-apigw.cloud.grohe.com";
     private RefreshTokenResponse refreshToken;
     ApiClient apiClient;
-    String token;
 
     /**
      * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
@@ -57,9 +56,8 @@ public class OndusService {
         service.apiClient = apiClient;
 
         LoginAction loginAction = apiClient.getAction(LoginAction.class);
-        service.token = loginAction.getToken(username, password);
 
-        apiClient.setToken(service.token);
+        apiClient.setToken(loginAction.getToken(username, password));
         return service;
     }
 
@@ -69,9 +67,8 @@ public class OndusService {
 
         RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
         service.refreshToken = refreshTokenAction.refresh(refreshToken);
-        service.token = service.refreshToken.accessToken;
 
-        apiClient.setToken(service.token);
+        apiClient.setToken(service.refreshToken.accessToken);
         apiClient.setVersion(ApiClient.Version.v3);
         return service;
     }
@@ -106,7 +103,7 @@ public class OndusService {
         }
         RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
         this.refreshToken = refreshTokenAction.refresh(refreshToken.refreshToken);
-        this.token = this.refreshToken.accessToken;
+        apiClient.setToken(this.refreshToken.accessToken);
     }
 
     /**
