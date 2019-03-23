@@ -22,6 +22,8 @@ public class ApiClient {
     private HttpClient httpClient;
     @Setter
     private String token;
+    @Setter
+    private Version version = Version.v2;
     private ObjectMapper mapper = new ObjectMapper();
 
     public ApiClient(String baseUrl) {
@@ -35,10 +37,20 @@ public class ApiClient {
 
     public <T> ApiResponse<T> get(String requestUrl, Class<T> returnType) throws IOException {
         HttpGet get = new HttpGet(baseUrl + requestUrl);
-        get.setHeader(HEADER_AUTHORIZATION, token);
+        get.setHeader(HEADER_AUTHORIZATION, authorization());
         HttpResponse response = httpClient.execute(get);
 
         return new ApiResponse<>(response, returnType);
+    }
+
+    private String authorization() {
+        if (token == null) {
+            return null;
+        }
+        if (version.equals(Version.v3)) {
+            return "Bearer " + token;
+        }
+        return token;
     }
 
     public <T> ApiResponse<T> post(String requestUrl, Class<T> returnType) throws IOException {
@@ -52,8 +64,8 @@ public class ApiClient {
         post.setEntity(new ByteArrayEntity(serializedParameters.getBytes()));
 
         post.setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON);
-        if (token != null) {
-            post.setHeader(HEADER_AUTHORIZATION, token);
+        if (authorization() != null) {
+            post.setHeader(HEADER_AUTHORIZATION, authorization());
         }
 
         HttpResponse response = httpClient.execute(post);
@@ -71,5 +83,16 @@ public class ApiClient {
         action.setApiClient(this);
 
         return action;
+    }
+
+    public String apiPath() {
+        if (version.equals(Version.v2)) {
+            return "/v2/";
+        }
+        return "/v3/";
+    }
+
+    public enum Version {
+        v2, v3
     }
 }

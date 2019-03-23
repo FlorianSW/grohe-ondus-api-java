@@ -29,6 +29,7 @@ public class ApplianceActionTest {
     @Before
     public void createMocks() {
         mockApiClient = mock(ApiClient.class);
+        when(mockApiClient.apiPath()).thenReturn("/v2/");
         mockApiResponse = mock(ApiResponse.class);
         Location location123 = new Location(123);
         room123 = new Room(123, location123);
@@ -53,6 +54,22 @@ public class ApplianceActionTest {
         when(mockApiClient.get(eq("/v2/iot/locations/123/rooms/123/appliances"), any())).thenReturn(mockApiResponse);
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
+
+        List<BaseAppliance> actualList = action.getAppliances(room123);
+
+        assertEquals(2, actualList.size());
+        actualList.forEach(appliance -> assertEquals(room123, appliance.getRoom()));
+    }
+
+    @Test
+    public void getAppliances_v3_returnsListOfAppliances() throws Exception {
+        ApiClient mockV3ApiClient = mock(ApiClient.class);
+        when(mockV3ApiClient.apiPath()).thenReturn("/v3/");
+        when(mockApiResponse.getStatusCode()).thenReturn(200);
+        when(mockApiResponse.getContent()).thenReturn(Optional.of(new BaseAppliance[]{new BaseAppliance(), new BaseAppliance()}));
+        when(mockV3ApiClient.get(eq("/v3/iot/locations/123/rooms/123/appliances"), any())).thenReturn(mockApiResponse);
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockV3ApiClient);
 
         List<BaseAppliance> actualList = action.getAppliances(room123);
 

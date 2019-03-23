@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class RoomAction extends AbstractAction {
-    private static final String LOCATIONS_URL_TEMPLATE = "/v2/iot/locations/%d/rooms";
-    private static final String LOCATION_URL_TEMPLATE = "/v2/iot/locations/%d/rooms/%d";
+    private static final String LOCATIONS_URL_TEMPLATE = "iot/locations/%d/rooms";
+    private static final String LOCATION_URL_TEMPLATE = "iot/locations/%d/rooms/%d";
 
     public List<Room> getRooms(Location forLocation) throws IOException {
         ApiResponse<Room[]> roomsResponse = getApiClient()
-                .get(String.format(LOCATIONS_URL_TEMPLATE, forLocation.getId()), Room[].class);
+                .get(String.format(getApiClient().apiPath() + LOCATIONS_URL_TEMPLATE, forLocation.getId()), Room[].class);
         if (roomsResponse.getStatusCode() != 200) {
             return Collections.emptyList();
         }
@@ -30,7 +30,7 @@ public class RoomAction extends AbstractAction {
 
     public Optional<Room> getRoom(Location inLocation, int id) throws IOException {
         ApiResponse<Room> roomResponse = getApiClient()
-                .get(String.format(LOCATION_URL_TEMPLATE, inLocation.getId(), id), Room.class);
+                .get(String.format(getApiClient().apiPath() + LOCATION_URL_TEMPLATE, inLocation.getId(), id), Room.class);
         if (roomResponse.getStatusCode() != 200) {
             return Optional.empty();
         }

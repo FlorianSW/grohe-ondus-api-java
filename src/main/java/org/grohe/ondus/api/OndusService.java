@@ -1,9 +1,6 @@
 package org.grohe.ondus.api;
 
-import org.grohe.ondus.api.actions.ApplianceAction;
-import org.grohe.ondus.api.actions.LocationAction;
-import org.grohe.ondus.api.actions.LoginAction;
-import org.grohe.ondus.api.actions.RoomAction;
+import org.grohe.ondus.api.actions.*;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.model.*;
 
@@ -16,8 +13,8 @@ import java.util.Optional;
 public class OndusService {
 
     private static final String BASE_URL = "https://idp-apigw.cloud.grohe.com";
+    private RefreshTokenResponse refreshTokenResponse;
     ApiClient apiClient;
-    String token;
 
     /**
      * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
@@ -37,18 +34,79 @@ public class OndusService {
         return login(username, password, new ApiClient(BASE_URL));
     }
 
+    /**
+     * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
+     * the provided refreshAuthorization token will be used to obtain a fresh access token from the GROHE Api, which will be saved
+     * in this {@link OndusService} instance.
+     *
+     * The access token currently is valid for one hour, however it will not be refreshed automatically. If it expires,
+     * you need to create a new instance of {@link OndusService}.
+     *
+     * @param refreshToken The refreshTokenResponse of the GROHE account
+     * @return An initialized instance of {@link OndusService} with the username or password
+     * @throws IOException When a communication error occurs
+     * @throws LoginException If the login credentials are rejected by the API
+     */
+    public static OndusService login(String refreshToken) throws IOException, LoginException {
+        return login(refreshToken, new ApiClient(BASE_URL));
+    }
+
     static OndusService login(String username, String password, ApiClient apiClient) throws IOException, LoginException {
         OndusService service = new OndusService();
         service.apiClient = apiClient;
 
         LoginAction loginAction = apiClient.getAction(LoginAction.class);
-        service.token = loginAction.getToken(username, password);
 
-        apiClient.setToken(service.token);
+        apiClient.setToken(loginAction.getToken(username, password));
+        return service;
+    }
+
+    static OndusService login(String refreshToken, ApiClient apiClient) throws IOException, LoginException {
+        OndusService service = new OndusService();
+        service.apiClient = apiClient;
+
+        RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
+        service.refreshTokenResponse = refreshTokenAction.refresh(refreshToken);
+
+        apiClient.setToken(service.refreshTokenResponse.accessToken);
+        apiClient.setVersion(ApiClient.Version.v3);
         return service;
     }
 
     OndusService() {
+    }
+
+    /**
+     * Returns the time at which the internally saved authorization will expire. It is advised that users of this class
+     * use this value after logging in to ensure that the authorization is refreshed before it actually expires.
+     * Actually refreshing the authorization is done by {@link #refreshAuthorization()}.
+     *
+     * @return The point in time when the authorization is expired
+     */
+    public Instant authorizationExpiresAt() {
+        if (refreshTokenResponse == null) {
+            return Instant.MAX;
+        }
+        return refreshTokenResponse.expiresAt();
+    }
+
+    /**
+     * Refreshed the internally saved authorization information (if necessary) and uses the refreshed authorization for
+     * upcoming requests to the GROHE Api.
+     *
+     * @return Returns the new refreshToken, which is also now saved internally in the service
+     * @throws IOException
+     * @throws LoginException
+     */
+    public String refreshAuthorization() throws IOException, LoginException {
+        if (refreshTokenResponse == null) {
+            return null;
+        }
+        RefreshTokenAction refreshTokenAction = apiClient.getAction(RefreshTokenAction.class);
+        this.refreshTokenResponse = refreshTokenAction.refresh(refreshTokenResponse.refreshToken);
+        apiClient.setToken(this.refreshTokenResponse.accessToken);
+
+        return refreshTokenResponse.refreshToken;
     }
 
     /**
