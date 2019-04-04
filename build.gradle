@@ -49,13 +49,6 @@ publishing {
     }
 }
 
-jar {
-    exclude('**/org/grohe/ondus/**/Main.class')
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
-
 dependencies {
     compile 'org.apache.httpcomponents:httpclient:4.5.5'
     compile 'com.fasterxml.jackson.core:jackson-core:2.9.6'
