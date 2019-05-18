@@ -9,6 +9,25 @@ information gathered while reverse engineering the Grohe ONDUS Anroid App. This 
 may not be permitted by Grohe and that this library may not work in the future anymore (when Grohe changes the API interface without
 any backwards compatibility). Once Grohe releases a public API, this library may not be needed anymore.
 
+# Installation
+
+The library is released to a [bintray project](https://bintray.com/floriansw/java-libraries/grohe-ondus-api) and linked to JCenter. Once you've setup [jcenter in your project](https://bintray.com/bintray/jcenter) (see the "Set me up!" dialog for details) you can add the library to your project (you should check for a newer version on jcenter, though):
+
+## Maven
+```
+<dependency>
+  <groupId>org.grohe</groupId>
+  <artifactId>ondus-api</artifactId>
+  <version>0.0.9</version>
+  <type>pom</type>
+</dependency>
+```
+
+## Gradle
+```
+compile 'org.grohe:ondus-api:0.0.9'
+```
+
 # Usage
 
 This library represents the API of the Grohe ONDUS REST service. The structure of the REST elements
