@@ -51,7 +51,29 @@ public class OndusService {
         return login(refreshToken, new ApiClient(BASE_URL));
     }
 
-    static OndusService login(String username, String password, ApiClient apiClient) throws IOException, LoginException {
+    /**
+     * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
+     * the provided credentials will be checked against the GROHE Api and an access token will be saved in this
+     * {@link OndusService} instance.
+     *
+     * The access token currently is valid for 6 months, however it will not be refreshed automatically. If it expires,
+     * you need to create a new instance of {@link OndusService}.
+     * 
+     * This login method is using the GROHE web form to obtain a token / refresh token. This can be used
+     * for accounts that don't work with the legacy login method.
+     *
+     * @param username The username of the GROHE account
+     * @param password The password of the GROHE account
+     * @return An initialized instance of {@link OndusService}
+     * @throws IOException When a communication error occurs
+     * @throws LoginException If the login credentials are rejected by the API
+     */
+    public static OndusService loginWebform(String username, String password) throws IOException, LoginException {
+    	RefreshTokenResponse response = new WebFormLogin(BASE_URL, username, password).login();
+    	return login(response.getRefreshToken());
+    }
+    
+	static OndusService login(String username, String password, ApiClient apiClient) throws IOException, LoginException {
         OndusService service = new OndusService();
         service.apiClient = apiClient;
 
