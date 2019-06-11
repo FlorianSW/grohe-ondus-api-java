@@ -43,7 +43,7 @@ public class SenseGuardApplianceData extends BaseApplianceData {
         @JsonProperty("timestamp")
         public String timestamp;
         @JsonProperty("flowrate")
-        public Integer flowrate;
+        public Float flowrate;
         @JsonProperty("pressure")
         public Float pressure;
         @JsonProperty("temperature_guard")
