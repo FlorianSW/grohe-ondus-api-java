@@ -34,6 +34,12 @@ class WebFormLogin {
 	private String baseUrl;
 	private String username;
 	private String password;
+	
+	private HttpClientFactory clientFactory = this::buildHttpClient;
+	
+	static interface HttpClientFactory {
+		CloseableHttpClient buildHttpClient();
+	}
 
 	WebFormLogin(String baseUrl, String username, String password) {
 		this.baseUrl = baseUrl;
@@ -41,8 +47,12 @@ class WebFormLogin {
 		this.password = password;
 	}
 	
+	public void setClientFactory(HttpClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
+	}
+	
 	RefreshTokenResponse login() throws IOException, LoginException {
-		try (CloseableHttpClient httpclient = buildHttpClient()) {
+		try (CloseableHttpClient httpclient = clientFactory.buildHttpClient()) {
 			HttpGet get = new HttpGet(baseUrl + "/v3/iot/oidc/login");
 			try (CloseableHttpResponse response = httpclient.execute(get)) {
 				checkResponse(response);
@@ -104,7 +114,8 @@ class WebFormLogin {
 	}
 
 	private void checkResponse(CloseableHttpResponse response) throws LoginException {
-		if (response.getStatusLine().getStatusCode() != 200) {
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode != 200 && statusCode != 302) {
 			throw new LoginException(String.format("Unknown response with code %d", response.getStatusLine().getStatusCode()));
 		}
 	}
