@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <title></title>
+</head>
+
+<div class="login">
+  <form onsubmit="login.disabled = true; return true;" action="https://idp2-apigw.cloud.grohe.com/v1/sso/auth/realms/idm-apigw/login-actions/authenticate?code=SomeRandomCode&amp;execution=7526d422-b4f9-4486-a5d5-2b669d40bcf7&amp;client_id=iot&amp;tab_id=PDSP-XYZ" method="post">
+    <div class="form-group">
+      <label class="sr-only" for="username">Email address</label>
+      <input type="email" class="form-control  input-lg" id="username" name="username" placeholder="">
+    </div>
+    <div class="form-group">
+      <label class="sr-only"  for="password">Password
+      </label>
+      <input type="password" class="form-control input-lg" id="password" name="password" placeholder="">
+    </div>
+    <button type="submit" class="btn btn-primary btn-block btn-lg">Log in</button>
+  </form>
+</div>
+</body>
+</html>
