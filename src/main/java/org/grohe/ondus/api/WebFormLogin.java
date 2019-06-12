@@ -6,7 +6,11 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.security.auth.login.LoginException;
+
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.http.Header;
+import org.apache.http.ParseException;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -25,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 class WebFormLogin {
 
 	private static final Pattern ACTION_PATTERN = Pattern.compile("action=\"([^\"]*)\"");
+	private static final String WRONG_USERNAME_PASSWORD = "Invalid email address or password";
 	
 	private String baseUrl;
 	private String username;
@@ -36,10 +41,12 @@ class WebFormLogin {
 		this.password = password;
 	}
 	
-	RefreshTokenResponse login() throws IOException {
+	RefreshTokenResponse login() throws IOException, LoginException {
 		try (CloseableHttpClient httpclient = buildHttpClient()) {
 			HttpGet get = new HttpGet(baseUrl + "/v3/iot/oidc/login");
 			try (CloseableHttpResponse response = httpclient.execute(get)) {
+				checkResponse(response);
+				
 				String page = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 				return login(httpclient, formTargetOf(page));
 			}
@@ -65,22 +72,45 @@ class WebFormLogin {
 		}
 	}
 
-	private RefreshTokenResponse login(CloseableHttpClient httpclient, String actionUrl) throws IOException {
+	private RefreshTokenResponse login(CloseableHttpClient httpclient, String actionUrl) throws IOException, LoginException {
 		HttpPost post = new HttpPost(actionUrl);
 		post.setHeader("Content-Type", "application/x-www-form-urlencoded");
 		post.setHeader("X-Requested-With", "XMLHttpRequest");
 		post.setHeader("referer", actionUrl);
 		post.setHeader("origin", baseUrl);
-
 		post.setEntity(new StringEntity(buildLoginRequest()));
-
+		
 		try (CloseableHttpResponse response = httpclient.execute(post)) {
+			checkResponse(response);
+
 			return fetchToken(httpclient, fetchLocation(response));
 		}
 	}
 
-	private String fetchLocation(CloseableHttpResponse response) {
-		return response.getHeaders("Location")[0].getValue().replace("ondus://", "https://");
+	private String fetchLocation(CloseableHttpResponse response) throws LoginException, ParseException, IOException {
+		Header[] headers = response.getHeaders("Location");
+		
+		if (headers.length > 0) {
+			return headers[0].getValue().replace("ondus://", "https://");
+		}
+		else {
+			if (checkIsInvalidCredentialsResult(response)) {
+				throw new LoginException("Invalid username/password");
+			}
+			else {
+				throw new LoginException("Unexpected response from grohe webservice");
+			}
+		}
+	}
+
+	private void checkResponse(CloseableHttpResponse response) throws LoginException {
+		if (response.getStatusLine().getStatusCode() != 200) {
+			throw new LoginException(String.format("Unknown response with code %d", response.getStatusLine().getStatusCode()));
+		}
+	}
+
+	private boolean checkIsInvalidCredentialsResult(CloseableHttpResponse response) throws IOException {
+		return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).contains(WRONG_USERNAME_PASSWORD);
 	}
 
 	private String buildLoginRequest() {

@@ -19,4 +19,15 @@ public class OndusServiceIntegrationTest {
         }
         fail("Should throw LoginException");
     }
+    
+    @Test
+    public void wrongUsernameForWebForm() throws Exception {
+        try {
+            OndusService.loginWebform("a-test", "a-password");
+        } catch (LoginException e) {
+            assertThat(e.getMessage(), equalTo("Invalid username/password"));
+            return;
+        }
+        fail("Should throw LoginException");
+    }
 }
