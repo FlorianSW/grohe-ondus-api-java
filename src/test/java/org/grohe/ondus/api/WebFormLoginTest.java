@@ -59,7 +59,7 @@ public class WebFormLoginTest {
     }
 
     private CloseableHttpResponse stubValidStep1Response() {
-        Collection<String> readLines = IOUtil.readLines(WebFormLoginTest.class.getResourceAsStream("webform-login.txt"));
+        Collection<String> readLines = IOUtil.readLines(WebFormLoginTest.class.getResourceAsStream("/webform-login.txt"));
         String content = String.join("\n", readLines);
 
         CloseableHttpResponse response = mock(CloseableHttpResponse.class, RETURNS_DEEP_STUBS);
