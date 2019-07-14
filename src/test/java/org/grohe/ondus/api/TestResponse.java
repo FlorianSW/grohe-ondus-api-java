@@ -1,12 +1,11 @@
 package org.grohe.ondus.api;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicStatusLine;
-
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestResponse {
     public static final String A_TOKEN = "A_TOKEN";
@@ -38,13 +37,11 @@ public class TestResponse {
             "    }\n" +
             "}";
 
-    public static HttpResponse getOkResponse() {
-        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(
-                new ProtocolVersion("HTTP", 1, 1), 200, "OK"));
+    public static HttpURLConnection getOkResponse() throws IOException {
+        HttpURLConnection conn = mock(HttpURLConnection.class);
+        when(conn.getResponseCode()).thenReturn(200);
+        when(conn.getInputStream()).thenReturn(new ByteArrayInputStream(VALID_LOGIN_RESPONSE.getBytes()));
 
-        BasicHttpEntity contentEntity = new BasicHttpEntity();
-        contentEntity.setContent(new ByteArrayInputStream(VALID_LOGIN_RESPONSE.getBytes()));
-        response.setEntity(contentEntity);
-        return response;
+        return conn;
     }
 }

@@ -2,15 +2,12 @@ package org.grohe.ondus.api.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.HttpClients;
 import org.grohe.ondus.api.actions.Action;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Collections;
 
 public class ApiClient {
@@ -27,7 +24,7 @@ public class ApiClient {
     private ObjectMapper mapper = new ObjectMapper();
 
     public ApiClient(String baseUrl) {
-        this(baseUrl, HttpClients.createDefault());
+        this(baseUrl, HttpClient.createDefault());
     }
 
     ApiClient(String baseUrl, HttpClient httpClient) {
@@ -36,11 +33,12 @@ public class ApiClient {
     }
 
     public <T> ApiResponse<T> get(String requestUrl, Class<T> returnType) throws IOException {
-        HttpGet get = new HttpGet(baseUrl + requestUrl);
-        get.setHeader(HEADER_AUTHORIZATION, authorization());
-        HttpResponse response = httpClient.execute(get);
+        URL url = new URL(baseUrl + requestUrl);
+        HttpURLConnection conn = httpClient.openConnection(url);
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty(HEADER_AUTHORIZATION, authorization());
 
-        return new ApiResponse<>(response, returnType);
+        return new ApiResponse<>(conn, returnType);
     }
 
     private String authorization() {
@@ -58,19 +56,26 @@ public class ApiClient {
     }
 
     public <T> ApiResponse<T> post(String requestUrl, Object body, Class<T> returnType) throws IOException {
-        HttpPost post = new HttpPost(baseUrl + requestUrl);
+        URL url = new URL(baseUrl + requestUrl);
+        HttpURLConnection conn = httpClient.openConnection(url);
+        conn.setRequestMethod("POST");
 
-        String serializedParameters = mapper.writeValueAsString(body);
-        post.setEntity(new ByteArrayEntity(serializedParameters.getBytes()));
-
-        post.setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON);
         if (authorization() != null) {
-            post.setHeader(HEADER_AUTHORIZATION, authorization());
+            conn.setRequestProperty(HEADER_AUTHORIZATION, authorization());
         }
+        conn.setRequestProperty(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON);
+        writeBody(body, conn);
 
-        HttpResponse response = httpClient.execute(post);
+        return new ApiResponse<>(conn, returnType);
+    }
 
-        return new ApiResponse<>(response, returnType);
+    private void writeBody(Object body, HttpURLConnection conn) throws IOException {
+        String serializedParameters = mapper.writeValueAsString(body);
+        conn.setDoOutput(true);
+        DataOutputStream stream = new DataOutputStream(conn.getOutputStream());
+        stream.writeBytes(serializedParameters);
+        stream.flush();
+        stream.close();
     }
 
     public <T extends Action> T getAction(Class<T> actionType) {

@@ -1,45 +1,47 @@
 package org.grohe.ondus.api;
 
-import org.apache.http.Header;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.grohe.ondus.api.client.HttpClient;
 import org.grohe.ondus.api.model.RefreshTokenResponse;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.util.io.IOUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.CookieHandler;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 public class WebFormLoginTest {
-    private static final String LOGIN_FORM = "GET http://example.com/v3/iot/oidc/login";
-    private static final String LOGIN_AUTH = "POST https://idp2-apigw.cloud.grohe.com/v1/sso/auth";
-    private static final String LOGIN_TOKEN_REQUEST = "GET https://example.com/fetch/token";
+    private static final String LOGIN_FORM = "http://example.com/v3/iot/oidc/login";
+    private static final String LOGIN_AUTH = "https://idp2-apigw.cloud.grohe.com/v1/sso/auth";
+    private static final String LOGIN_TOKEN_REQUEST = "https://example.com/fetch/token";
     private static final String TOKEN_RESPONSE = "{ \"access_token\": \"access-token\", \"expires_in\": 3600, \"id_token\": \"id-token\", \"not-before-policy\": 0, \"partialLogin\": false, \"refresh_expires_in\": 15552000, \"refresh_token\": \"refresh-token\", \"scope\": \"\", \"session_state\": \"7526d422-b4f9-4486-a5d5-2b669d40bcf7\", \"tandc_accepted\": true, \"token_type\": \"bearer\" }";
 
     @Test
     public void testValidLogin() throws Exception {
         WebFormLogin login = new WebFormLogin("http://example.com", "a-test", "a-password");
-        login.setClientFactory(this::stubHttpClient);
+        login.setHttpClient(stubHttpClient());
 
         RefreshTokenResponse response = login.login();
 
         assertEquals("access-token", response.getAccessToken());
         assertEquals("refresh-token", response.getRefreshToken());
         assertEquals(3600, response.getExpiresIn());
+        assertNotNull("Handles cookies between request", CookieHandler.getDefault());
     }
 
-    private CloseableHttpClient stubHttpClient() {
-        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+    private HttpClient stubHttpClient() {
+        HttpClient httpClient = mock(HttpClient.class);
         try {
-            when(httpClient.execute(any(HttpUriRequest.class))).then(i -> {
-                HttpUriRequest request = i.getArgument(0);
+            when(httpClient.openConnection(any(URL.class))).then(i -> {
+                URL request = i.getArgument(0);
 
                 if (request.toString().startsWith(LOGIN_FORM)) {
                     return stubValidStep1Response();
@@ -58,32 +60,31 @@ public class WebFormLoginTest {
         return httpClient;
     }
 
-    private CloseableHttpResponse stubValidStep1Response() {
+    private HttpURLConnection stubValidStep1Response() throws IOException {
+        HttpURLConnection connection = mock(HttpURLConnection.class);
         Collection<String> readLines = IOUtil.readLines(WebFormLoginTest.class.getResourceAsStream("/webform-login.txt"));
         String content = String.join("\n", readLines);
 
-        CloseableHttpResponse response = mock(CloseableHttpResponse.class, RETURNS_DEEP_STUBS);
-        when(response.getStatusLine().getStatusCode()).thenReturn(200);
-        when(response.getEntity()).thenReturn(new ByteArrayEntity(content.getBytes(StandardCharsets.UTF_8)));
-        return response;
+        when(connection.getResponseCode()).thenReturn(200);
+        when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+        return connection;
     }
 
-    private CloseableHttpResponse stubValidStep2Response() {
-        CloseableHttpResponse response = mock(CloseableHttpResponse.class, RETURNS_DEEP_STUBS);
-        when(response.getStatusLine().getStatusCode()).thenReturn(200);
-        when(response.getEntity()).thenReturn(new ByteArrayEntity(new byte[0]));
+    private HttpURLConnection stubValidStep2Response() throws IOException {
+        HttpURLConnection connection = mock(HttpURLConnection.class);
 
-        Header header = mock(Header.class);
-        when(header.getValue()).thenReturn("ondus://example.com/fetch/token");
-
-        when(response.getHeaders(Mockito.matches("Location"))).thenReturn(new Header[]{header});
-        return response;
+        when(connection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
+        when(connection.getResponseCode()).thenReturn(200);
+        when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        when(connection.getHeaderField("Location")).thenReturn("ondus://example.com/fetch/token");
+        return connection;
     }
 
-    private CloseableHttpResponse stubValidStep3Response() {
-        CloseableHttpResponse response = mock(CloseableHttpResponse.class, RETURNS_DEEP_STUBS);
-        when(response.getStatusLine().getStatusCode()).thenReturn(200);
-        when(response.getEntity()).thenReturn(new ByteArrayEntity(TOKEN_RESPONSE.getBytes(StandardCharsets.UTF_8)));
-        return response;
+    private HttpURLConnection stubValidStep3Response() throws IOException {
+        HttpURLConnection connection = mock(HttpURLConnection.class);
+
+        when(connection.getResponseCode()).thenReturn(200);
+        when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(TOKEN_RESPONSE.getBytes(StandardCharsets.UTF_8)));
+        return connection;
     }
 }

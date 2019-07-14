@@ -2,25 +2,12 @@ package org.grohe.ondus.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.Header;
-import org.apache.http.ParseException;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.grohe.ondus.api.client.HttpClient;
 import org.grohe.ondus.api.model.RefreshTokenResponse;
 
 import javax.security.auth.login.LoginException;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.io.*;
+import java.net.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,40 +20,41 @@ class WebFormLogin {
     private String username;
     private String password;
 
-    private HttpClientFactory clientFactory = this::buildHttpClient;
-
-    interface HttpClientFactory {
-        CloseableHttpClient buildHttpClient();
-    }
+    private HttpClient httpClient;
 
     WebFormLogin(String baseUrl, String username, String password) {
         this.baseUrl = baseUrl;
         this.username = username;
         this.password = password;
+        this.httpClient = HttpClient.createDefault();
     }
 
-    public void setClientFactory(HttpClientFactory clientFactory) {
-        this.clientFactory = clientFactory;
+    void setHttpClient(HttpClient client) {
+        this.httpClient = client;
     }
 
     RefreshTokenResponse login() throws IOException, LoginException {
-        try (CloseableHttpClient httpclient = clientFactory.buildHttpClient()) {
-            HttpGet get = new HttpGet(baseUrl + "/v3/iot/oidc/login");
-            try (CloseableHttpResponse response = httpclient.execute(get)) {
-                assertOkResponse(response);
+        CookieManager cookieManager = new CookieManager();
+        CookieHandler.setDefault(cookieManager);
 
-                String page = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                return login(httpclient, formTargetOf(page));
-            }
+        URL url = new URL(baseUrl + "/v3/iot/oidc/login");
+        HttpURLConnection connection = httpClient.openConnection(url);
+        connection.setRequestMethod("GET");
+
+        try (InputStream inputStream = connection.getInputStream()) {
+            return login(formTargetOf(extractContentFromResponse(inputStream)));
         }
     }
 
-    private CloseableHttpClient buildHttpClient() {
-        return HttpClientBuilder.create()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD)
-                        .build())
-                .build();
+    private String extractContentFromResponse(InputStream is) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(is);
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        int result = bis.read();
+        while (result != -1) {
+            buf.write((byte) result);
+            result = bis.read();
+        }
+        return buf.toString();
     }
 
     private String formTargetOf(String page) throws IOException {
@@ -78,58 +66,60 @@ class WebFormLogin {
         throw new IOException("Unexpected result from Grohe API (login form target url not found)");
     }
 
-    private RefreshTokenResponse login(CloseableHttpClient httpclient, String actionUrl) throws IOException, LoginException {
-        HttpPost post = new HttpPost(actionUrl);
-        post.setHeader("Content-Type", "application/x-www-form-urlencoded");
-        post.setHeader("X-Requested-With", "XMLHttpRequest");
-        post.setHeader("referer", actionUrl);
-        post.setHeader("origin", baseUrl);
-        post.setEntity(new StringEntity(buildLoginRequest()));
+    private RefreshTokenResponse login(String actionUrl) throws IOException, LoginException {
+        URL url = new URL(actionUrl);
+        HttpURLConnection connection = httpClient.openConnection(url);
+        connection.setRequestMethod("POST");
+        connection.setInstanceFollowRedirects(false);
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+        connection.setRequestProperty("referer", actionUrl);
+        connection.setRequestProperty("origin", baseUrl);
 
-        try (CloseableHttpResponse response = httpclient.execute(post)) {
-            assertOkResponse(response);
-
-            return fetchToken(httpclient, fetchLocation(response));
+        connection.setDoOutput(true);
+        try (DataOutputStream output = new DataOutputStream(connection.getOutputStream())) {
+            output.writeBytes(buildLoginRequest());
+            output.flush();
         }
+
+        assertOkResponse(connection);
+
+        return fetchToken(fetchLocation(connection));
     }
 
-    private String fetchLocation(CloseableHttpResponse response) throws LoginException, ParseException, IOException {
-        Header[] headers = response.getHeaders("Location");
-
-        if (headers.length > 0) {
-            return headers[0].getValue().replace("ondus://", "https://");
+    private String fetchLocation(HttpURLConnection connection) throws LoginException, IOException {
+        String locationHeader = connection.getHeaderField("Location");
+        if (locationHeader != null) {
+            return locationHeader.replace("ondus://", "https://");
         }
 
-        if (isWrongCredentials(response)) {
+        String content = extractContentFromResponse(connection.getInputStream());
+        if (isWrongCredentials(content)) {
             throw new LoginException("Invalid username/password");
         }
         throw new LoginException("Unexpected response from grohe webservice");
     }
 
-    private void assertOkResponse(CloseableHttpResponse response) throws LoginException {
-        int statusCode = response.getStatusLine().getStatusCode();
+    private void assertOkResponse(HttpURLConnection connection) throws LoginException, IOException {
+        int statusCode = connection.getResponseCode();
         if (statusCode != 200 && statusCode != 302) {
-            throw new LoginException(String.format("Unknown response with code %d", response.getStatusLine().getStatusCode()));
+            throw new LoginException(String.format("Unknown response with code %d", statusCode));
         }
     }
 
-    private boolean isWrongCredentials(CloseableHttpResponse response) throws IOException {
-        return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).contains(WRONG_USERNAME_PASSWORD);
+    private boolean isWrongCredentials(String content) {
+        return content.contains(WRONG_USERNAME_PASSWORD);
     }
 
-    private String buildLoginRequest() {
-        return URLEncodedUtils.format(Arrays.asList(
-                new BasicNameValuePair("username", username),
-                new BasicNameValuePair("password", password)), StandardCharsets.UTF_8);
+    private String buildLoginRequest() throws UnsupportedEncodingException {
+        return "username=" + URLEncoder.encode(username, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8");
     }
 
-    private RefreshTokenResponse fetchToken(CloseableHttpClient httpclient, String location) throws IOException {
-        HttpGet getTokens = new HttpGet(location);
+    private RefreshTokenResponse fetchToken(String location) throws IOException {
+        URL url = new URL(location);
+        HttpURLConnection connection = httpClient.openConnection(url);
 
-        try (CloseableHttpResponse tokenResponse = httpclient.execute(getTokens)) {
-            String tokenJson = EntityUtils.toString(tokenResponse.getEntity(), StandardCharsets.UTF_8);
-
-            return new ObjectMapper().readValue(tokenJson, RefreshTokenResponse.class);
-        }
+        String tokenJson = extractContentFromResponse(connection.getInputStream());
+        return new ObjectMapper().readValue(tokenJson, RefreshTokenResponse.class);
     }
 }

@@ -1,13 +1,12 @@
 package org.grohe.ondus.api.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.Optional;
 
 public class ApiResponse<T> {
@@ -15,28 +14,25 @@ public class ApiResponse<T> {
     private int statusCode;
     private String content;
 
-    public ApiResponse(HttpResponse httpResponse, Class<T> targetClass) throws IOException {
-        this.statusCode = httpResponse.getStatusLine().getStatusCode();
+    public ApiResponse(HttpURLConnection conn, Class<T> targetClass) throws IOException {
+        this.statusCode = conn.getResponseCode();
 
-        HttpEntity responseEntity = httpResponse.getEntity();
-        try {
-            if (statusCode != 200) {
-                mappedContent = null;
-            } else {
-                extractContentFromResponse(httpResponse);
+        if (statusCode != 200) {
+            mappedContent = null;
+        } else {
+            try (InputStream inputStream = conn.getInputStream()) {
+                extractContentFromResponse(inputStream);
                 ObjectMapper mapper = new ObjectMapper();
                 mappedContent = mapper.readValue(content, targetClass);
             }
-        } finally {
-            EntityUtils.consume(responseEntity);
         }
     }
 
-    private void extractContentFromResponse(HttpResponse httpResponse) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(httpResponse.getEntity().getContent());
+    private void extractContentFromResponse(InputStream is) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(is);
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         int result = bis.read();
-        while(result != -1) {
+        while (result != -1) {
             buf.write((byte) result);
             result = bis.read();
         }

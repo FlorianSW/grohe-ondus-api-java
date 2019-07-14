@@ -18,7 +18,7 @@ plugins {
 apply plugin: 'biz.aQute.bnd.builder'
 
 group 'org.grohe'
-version '0.0.9'
+version '0.0.10'
 
 compileJava {
     sourceCompatibility = '1.8'
@@ -54,10 +54,10 @@ bintray {
         licenses = ['MIT']
         vcsUrl = 'https://github.com/floriansw/grohe-ondus-api-java.git'
         version {
-            name = '0.0.9'
+            name = '0.0.10'
             desc = 'GROHE ONDUS Api library'
-            released  = new Date()
-            vcsTag = '0.0.9'
+            released = new Date()
+            vcsTag = '0.0.10'
         }
     }
 }
@@ -72,7 +72,6 @@ publishing {
 }
 
 dependencies {
-    compile 'org.apache.httpcomponents:httpclient:4.5.5'
     compile 'org.apache.commons:commons-text:1.6'
     compile 'com.fasterxml.jackson.core:jackson-core:2.9.6'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.6'

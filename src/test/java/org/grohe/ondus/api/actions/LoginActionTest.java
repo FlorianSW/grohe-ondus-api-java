@@ -53,8 +53,9 @@ public class LoginActionTest {
 
     @Test
     public void getToken_200_returnsToken() throws Exception {
+        ApiResponse<Authentication> mockApiResponse = new ApiResponse<>(getOkResponse(), Authentication.class);
         when(mockApiClient.post(any(), any(LoginAction.LoginRequest.class), eq(Authentication.class)))
-                .thenReturn(new ApiResponse<>(getOkResponse(), Authentication.class));
+                .thenReturn(mockApiResponse);
         LoginAction loginAction = new LoginAction();
         loginAction.setApiClient(mockApiClient);
 
