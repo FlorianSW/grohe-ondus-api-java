@@ -6,6 +6,7 @@ import org.grohe.ondus.api.model.Authentication;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.LoginException;
 
 import static org.grohe.ondus.api.TestResponse.A_TOKEN;
@@ -32,6 +33,17 @@ public class LoginActionTest {
     @Test(expected = LoginException.class)
     public void getToken_441_throwsLoginException() throws Exception {
         when(mockApiResponse.getStatusCode()).thenReturn(441);
+        when(mockApiClient.post(any(), any(LoginAction.LoginRequest.class), eq(Authentication.class)))
+                .thenReturn(mockApiResponse);
+        LoginAction loginAction = new LoginAction();
+        loginAction.setApiClient(mockApiClient);
+
+        loginAction.getToken(A_USERNAME, A_PASSWORD);
+    }
+
+    @Test(expected = AccountNotFoundException.class)
+    public void getToken_404_throwsAccountNotFoundException() throws Exception {
+        when(mockApiResponse.getStatusCode()).thenReturn(404);
         when(mockApiClient.post(any(), any(LoginAction.LoginRequest.class), eq(Authentication.class)))
                 .thenReturn(mockApiResponse);
         LoginAction loginAction = new LoginAction();

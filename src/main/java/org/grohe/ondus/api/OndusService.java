@@ -4,6 +4,7 @@ import org.grohe.ondus.api.actions.*;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.model.*;
 
+import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.time.Instant;
@@ -20,15 +21,20 @@ public class OndusService {
      * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
      * the provided credentials will be checked against the GROHE Api and an access token will be saved in this
      * {@link OndusService} instance.
-     *
+     * <p>
      * The access token currently is valid for 6 months, however it will not be refreshed automatically. If it expires,
      * you need to create a new instance of {@link OndusService}.
      *
      * @param username The username of the GROHE account
      * @param password The password of the GROHE account
      * @return An initialized instance of {@link OndusService} with the username or password
-     * @throws IOException When a communication error occurs
-     * @throws LoginException If the login credentials are rejected by the API
+     * @throws IOException              When a communication error occurs
+     * @throws LoginException           If the login credentials are rejected by the API
+     * @throws AccountNotFoundException If the account was not found or the credentials can not be used with this login
+     *                                  method. Try loginWebform or login with a refreshToken instead.
+     * @deprecated since 0.0.12, use loginWebform instead. The username/password login through the API is not supported
+     * for all accounts, therefore you should not rely on it. Either login with a refreshToken or by using the webform
+     * login method.
      */
     public static OndusService login(String username, String password) throws IOException, LoginException {
         return login(username, password, new ApiClient(BASE_URL));
@@ -38,13 +44,13 @@ public class OndusService {
      * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
      * the provided refreshAuthorization token will be used to obtain a fresh access token from the GROHE Api, which will be saved
      * in this {@link OndusService} instance.
-     *
+     * <p>
      * The access token currently is valid for one hour, however it will not be refreshed automatically. If it expires,
      * you need to create a new instance of {@link OndusService}.
      *
      * @param refreshToken The refreshTokenResponse of the GROHE account
      * @return An initialized instance of {@link OndusService} with the username or password
-     * @throws IOException When a communication error occurs
+     * @throws IOException    When a communication error occurs
      * @throws LoginException If the login credentials are rejected by the API
      */
     public static OndusService login(String refreshToken) throws IOException, LoginException {
@@ -55,25 +61,25 @@ public class OndusService {
      * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
      * the provided credentials will be checked against the GROHE Api and an access token will be saved in this
      * {@link OndusService} instance.
-     *
+     * <p>
      * The access token currently is valid for 6 months, however it will not be refreshed automatically. If it expires,
      * you need to create a new instance of {@link OndusService}.
-     * 
+     * <p>
      * This login method is using the GROHE web form to obtain a token / refresh token. This can be used
      * for accounts that don't work with the legacy login method.
      *
      * @param username The username of the GROHE account
      * @param password The password of the GROHE account
      * @return An initialized instance of {@link OndusService}
-     * @throws IOException When a communication error occurs
+     * @throws IOException    When a communication error occurs
      * @throws LoginException If the login credentials are rejected by the API
      */
     public static OndusService loginWebform(String username, String password) throws IOException, LoginException {
-    	RefreshTokenResponse response = new WebFormLogin(BASE_URL, username, password).login();
-    	return login(response.getRefreshToken());
+        RefreshTokenResponse response = new WebFormLogin(BASE_URL, username, password).login();
+        return login(response.getRefreshToken());
     }
-    
-	static OndusService login(String username, String password, ApiClient apiClient) throws IOException, LoginException {
+
+    static OndusService login(String username, String password, ApiClient apiClient) throws IOException, LoginException {
         OndusService service = new OndusService();
         service.apiClient = apiClient;
 
@@ -177,7 +183,7 @@ public class OndusService {
      * account.
      *
      * @param inLocation The {@link Location} to look for the room in
-     * @param id The room ID as retrieved by the GROHE Api
+     * @param id         The room ID as retrieved by the GROHE Api
      * @return One specific {@link Room}
      * @throws IOException When a communication error occurs
      */
@@ -205,7 +211,7 @@ public class OndusService {
      * Retrieves a single {@link SenseGuardAppliance} object from the Api without querying for all appliances inside the GROHE
      * account.
      *
-     * @param inRoom The {@link Room} to look for the appliance in
+     * @param inRoom      The {@link Room} to look for the appliance in
      * @param applianceId The room ID as retrieved by the GROHE Api
      * @return One specific {@link SenseGuardAppliance}
      * @throws IOException When a communication error occurs
@@ -237,8 +243,8 @@ public class OndusService {
      * instead of requesting all data from all time.
      *
      * @param appliance The {@link BaseAppliance} to retrieve data from
-     * @param from Needs to be an instance of {@link Instant} which is at least one day before to
-     * @param to Needs to be an instance of {@link Instant} which is at least one day after from
+     * @param from      Needs to be an instance of {@link Instant} which is at least one day before to
+     * @param to        Needs to be an instance of {@link Instant} which is at least one day after from
      * @return The {@link SenseGuardApplianceData} of the appliance in the given time range
      * @throws IOException When a communication error occurs
      */
@@ -281,7 +287,7 @@ public class OndusService {
      * execution or failure of the command.
      *
      * @param appliance The appliance to change the valve state of
-     * @param open The requested valve state
+     * @param open      The requested valve state
      * @throws IOException When a communication error occurs
      */
     public void setValveOpen(SenseGuardAppliance appliance, boolean open) throws IOException {

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.Authentication;
 
+import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 
@@ -19,6 +20,9 @@ public class LoginAction extends AbstractAction {
 
         if (authResponse.getStatusCode() == 441) {
             throw new LoginException("441 - Unauthorized");
+        }
+        if (authResponse.getStatusCode() == 404) {
+            throw new AccountNotFoundException();
         }
         return authResponse.getContent()
                 .orElseThrow(() -> new IllegalArgumentException(
