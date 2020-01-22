@@ -1,10 +1,11 @@
 package org.grohe.ondus.api;
 
-import org.grohe.ondus.api.actions.*;
+import org.grohe.ondus.api.actions.ApplianceAction;
+import org.grohe.ondus.api.actions.DashboardAction;
+import org.grohe.ondus.api.actions.RefreshTokenAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.model.*;
 
-import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.time.Instant;
@@ -13,32 +14,9 @@ import java.util.Optional;
 
 public class OndusService {
 
-    private static final String BASE_URL = "https://idp-apigw.cloud.grohe.com";
+    private static final String BASE_URL = "https://idp2-apigw.cloud.grohe.com";
     private RefreshTokenResponse refreshTokenResponse;
     ApiClient apiClient;
-
-    /**
-     * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
-     * the provided credentials will be checked against the GROHE Api and an access token will be saved in this
-     * {@link OndusService} instance.
-     * <p>
-     * The access token currently is valid for 6 months, however it will not be refreshed automatically. If it expires,
-     * you need to create a new instance of {@link OndusService}.
-     *
-     * @param username The username of the GROHE account
-     * @param password The password of the GROHE account
-     * @return An initialized instance of {@link OndusService} with the username or password
-     * @throws IOException              When a communication error occurs
-     * @throws LoginException           If the login credentials are rejected by the API
-     * @throws AccountNotFoundException If the account was not found or the credentials can not be used with this login
-     *                                  method. Try loginWebform or login with a refreshToken instead.
-     * @deprecated since 0.0.12, use loginWebform instead. The username/password login through the API is not supported
-     * for all accounts, therefore you should not rely on it. Either login with a refreshToken or by using the webform
-     * login method.
-     */
-    public static OndusService login(String username, String password) throws IOException, LoginException {
-        return login(username, password, new ApiClient(BASE_URL));
-    }
 
     /**
      * Main entry point for the {@link OndusService} to obtain an initialized instance of it. When calling this method,
@@ -79,16 +57,6 @@ public class OndusService {
         return login(response.getRefreshToken());
     }
 
-    static OndusService login(String username, String password, ApiClient apiClient) throws IOException, LoginException {
-        OndusService service = new OndusService();
-        service.apiClient = apiClient;
-
-        LoginAction loginAction = apiClient.getAction(LoginAction.class);
-
-        apiClient.setToken(loginAction.getToken(username, password));
-        return service;
-    }
-
     static OndusService login(String refreshToken, ApiClient apiClient) throws IOException, LoginException {
         OndusService service = new OndusService();
         service.apiClient = apiClient;
@@ -97,7 +65,6 @@ public class OndusService {
         service.refreshTokenResponse = refreshTokenAction.refresh(refreshToken);
 
         apiClient.setToken(service.refreshTokenResponse.accessToken);
-        apiClient.setVersion(ApiClient.Version.v3);
         return service;
     }
 
@@ -138,77 +105,21 @@ public class OndusService {
     }
 
     /**
-     * Locations are the top-level organizational structure inside the GROHE account. They're most likely used to
-     * separate multiple buildings or houses within one account.
+     * Retrieve a list of appliances saved in the GROHE account used when logging in. This method returns a list of
+     * devices out of all rooms and locations. You can filter later on by inspecting the room and the associated location
+     * of a room, if you've the need to filter.
      *
-     * @return The list of saved {@link Location}s in the GROHE account
-     * @throws IOException When a communication error occurs
+     * @return A list of appliances of the GROHE account
+     * @throws IOException When a communication error with the GROHE API occurs
      */
-    public List<Location> getLocations() throws IOException {
-        LocationAction action = apiClient.getAction(LocationAction.class);
+    public List<BaseAppliance> appliances() throws IOException {
+        DashboardAction action = apiClient.getAction(DashboardAction.class);
 
-        return action.getLocations();
+        return action.appliances();
     }
 
     /**
-     * Retrieves a single {@link Location} object from the Api without querying for all locations inside the GROHE
-     * account.
-     *
-     * @param id The location ID as retrieved by the GROHE Api
-     * @return One specific {@link Location}
-     * @throws IOException When a communication error occurs
-     */
-    public Optional<Location> getLocation(int id) throws IOException {
-        LocationAction action = apiClient.getAction(LocationAction.class);
-
-        return action.getLocation(id);
-    }
-
-    /**
-     * A {@link Room} is an intermediate organizational structure element inside the GROHE account. It is usually
-     * used to separate multiple appliances in different rooms from each other.
-     *
-     * @param forLocation The {@link Location} to look for rooms in
-     * @return The list of saved {@link Room}s in the GROHE account
-     * @throws IOException When a communication error occurs
-     */
-    public List<Room> getRooms(Location forLocation) throws IOException {
-        RoomAction action = apiClient.getAction(RoomAction.class);
-
-        return action.getRooms(forLocation);
-    }
-
-    /**
-     * Retrieves a single {@link Room} object from the Api without querying for all rooms inside the GROHE
-     * account.
-     *
-     * @param inLocation The {@link Location} to look for the room in
-     * @param id         The room ID as retrieved by the GROHE Api
-     * @return One specific {@link Room}
-     * @throws IOException When a communication error occurs
-     */
-    public Optional<Room> getRoom(Location inLocation, int id) throws IOException {
-        RoomAction action = apiClient.getAction(RoomAction.class);
-
-        return action.getRoom(inLocation, id);
-    }
-
-    /**
-     * {@link SenseGuardAppliance}s are real devices from GROHE, saved inside the GROHE account. They provide an interface
-     * to the appliance's features and data.
-     *
-     * @param inRoom The {@link Room} to look for appliances in
-     * @return The list of saved {@link SenseGuardAppliance}s in the GROHE account
-     * @throws IOException When a communication error occurs
-     */
-    public List<BaseAppliance> getAppliances(Room inRoom) throws IOException {
-        ApplianceAction action = apiClient.getAction(ApplianceAction.class);
-
-        return action.getAppliances(inRoom);
-    }
-
-    /**
-     * Retrieves a single {@link SenseGuardAppliance} object from the Api without querying for all appliances inside the GROHE
+     * Retrieves a single {@link BaseAppliance} object from the Api without querying for all appliances inside the GROHE
      * account.
      *
      * @param inRoom      The {@link Room} to look for the appliance in
@@ -225,21 +136,21 @@ public class OndusService {
     /**
      * Retrieves the {@link BaseApplianceData} saved for the appliance in the GROHE account. This method will query for the
      * whole set of data saved for the appliance up to the (yet unknown) limit of the GROHE api. Consider using
-     * {@link #getApplianceData(BaseAppliance, Instant, Instant)} to minimize the length of the result and the payload
+     * {@link #applianceData(BaseAppliance, Instant, Instant)} to minimize the length of the result and the payload
      * exchanged with the GROHE Api.
      *
      * @param appliance The {@link SenseGuardAppliance} to retrieve data from
      * @return The {@link SenseGuardApplianceData} of the appliance
      * @throws IOException When a communication error occurs
      */
-    public Optional<BaseApplianceData> getApplianceData(BaseAppliance appliance) throws IOException {
+    public Optional<BaseApplianceData> applianceData(BaseAppliance appliance) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         return action.getApplianceData(appliance);
     }
 
     /**
-     * The same as {@link #getApplianceData(BaseAppliance)}, however, limits the requested data to a specific time range
+     * The same as {@link #applianceData(BaseAppliance)}, however, limits the requested data to a specific time range
      * instead of requesting all data from all time.
      *
      * @param appliance The {@link BaseAppliance} to retrieve data from
@@ -248,7 +159,7 @@ public class OndusService {
      * @return The {@link SenseGuardApplianceData} of the appliance in the given time range
      * @throws IOException When a communication error occurs
      */
-    public Optional<BaseApplianceData> getApplianceData(BaseAppliance appliance, Instant from, Instant to) throws IOException {
+    public Optional<BaseApplianceData> applianceData(BaseAppliance appliance, Instant from, Instant to) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         return action.getApplianceData(appliance, from, to);
@@ -262,7 +173,7 @@ public class OndusService {
      * @return The {@link ApplianceCommand} of the appliance
      * @throws IOException When a communication error occurs
      */
-    public Optional<ApplianceCommand> getApplianceCommand(SenseGuardAppliance appliance) throws IOException {
+    public Optional<ApplianceCommand> applianceCommand(SenseGuardAppliance appliance) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         return action.getApplianceCommand(appliance);
@@ -276,7 +187,7 @@ public class OndusService {
      * @return The {@link ApplianceStatus} of the appliance
      * @throws IOException When a communication error occurs
      */
-    public Optional<ApplianceStatus> getApplianceStatus(BaseAppliance appliance) throws IOException {
+    public Optional<ApplianceStatus> applianceStatus(BaseAppliance appliance) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         return action.getApplianceStatus(appliance);
@@ -293,7 +204,7 @@ public class OndusService {
     public void setValveOpen(SenseGuardAppliance appliance, boolean open) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
-        Optional<ApplianceCommand> applianceCommandOptional = getApplianceCommand(appliance);
+        Optional<ApplianceCommand> applianceCommandOptional = applianceCommand(appliance);
         if (!applianceCommandOptional.isPresent()) {
             return;
         }

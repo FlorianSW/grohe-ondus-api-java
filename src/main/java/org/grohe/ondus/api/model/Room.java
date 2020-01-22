@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Collections;
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @Getter
@@ -19,6 +22,7 @@ public class Room {
     private String role;
     @JsonIgnore
     private Location location = new Location();
+    private List<BaseAppliance> appliances = Collections.emptyList();
 
     public Room(int id, Location location) {
         this.id = id;

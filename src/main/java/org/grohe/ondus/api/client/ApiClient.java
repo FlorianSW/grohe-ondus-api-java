@@ -19,8 +19,6 @@ public class ApiClient {
     private HttpClient httpClient;
     @Setter
     private String token;
-    @Setter
-    private Version version = Version.v2;
     private ObjectMapper mapper = new ObjectMapper();
 
     public ApiClient(String baseUrl) {
@@ -45,10 +43,7 @@ public class ApiClient {
         if (token == null) {
             return null;
         }
-        if (version.equals(Version.v3)) {
-            return "Bearer " + token;
-        }
-        return token;
+        return "Bearer " + token;
     }
 
     public <T> ApiResponse<T> post(String requestUrl, Class<T> returnType) throws IOException {
@@ -91,9 +86,6 @@ public class ApiClient {
     }
 
     public String apiPath() {
-        if (version.equals(Version.v2)) {
-            return "/v2/";
-        }
         return "/v3/";
     }
 

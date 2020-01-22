@@ -10,17 +10,6 @@ import static org.junit.Assert.fail;
 
 public class OndusServiceIntegrationTest {
     @Test
-    public void wrongUsername_returns441() throws Exception {
-        try {
-            OndusService.login("a-test", "a-password");
-        } catch (LoginException e) {
-            assertThat(e.getMessage(), equalTo("441 - Unauthorized"));
-            return;
-        }
-        fail("Should throw LoginException");
-    }
-    
-    @Test
     public void wrongUsernameForWebForm() throws Exception {
         try {
             OndusService.loginWebform("a-test", "a-password");

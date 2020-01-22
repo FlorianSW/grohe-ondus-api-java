@@ -7,20 +7,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Collections;
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
 public class Location {
-    public int id;
-    public String name;
-    public int type;
-    public String role;
-    public String timezone;
+    private int id;
+    private String name;
+    private int type;
+    private String role;
+    private String timezone;
     @JsonProperty("emergency_shutdown_enable")
-    public boolean emergencyShutdownEnable;
-    public Address address;
+    private boolean emergencyShutdownEnable;
+    private Address address;
+    private List<Room> rooms = Collections.emptyList();
 
     public Location(int id) {
         this.id = id;

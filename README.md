@@ -28,48 +28,6 @@ The library is released to a [bintray project](https://bintray.com/floriansw/jav
 compile 'org.grohe:ondus-api:0.0.9'
 ```
 
-# Usage
-
-This library represents the API of the Grohe ONDUS REST service. The structure of the REST elements
-looks something like the following (a list of Locations, which contains a list of rooms, which
-contains a list of appliances):
-
-````
-+-- Location
-|   +-- Room
-|   |   +-- Appliance
-|   |   |   +-- ApplianceData
-|   |   |   +-- ApplianceCommand
-|   |   +-- Appliance
-|   |   |   +-- ApplianceData
-|   |   |   +-- ApplianceCommand
-|   +-- Room
-|   |   +-- Appliance
-|   |   |   +-- ApplianceData
-|   |   |   +-- ApplianceCommand
-|   |   +-- Appliance
-|   |   |   +-- ApplianceData
-|   |   |   +-- ApplianceCommand
-+-- Location
-|   +-- Room
-|   |   +-- Appliance
-|   |   |   +-- ApplianceData
-|   |   |   +-- ApplianceCommand
-|   |   +-- Appliance
-|   |   |   +-- ApplianceData
-|   |   |   +-- ApplianceCommand
-|   +-- Room
-|   |   +-- Appliance
-|   |   |   +-- ApplianceData
-|   |   |   +-- ApplianceCommand
-|   |   +-- Appliance
-|   |   |   +-- ApplianceData
-|   |   |   +-- ApplianceCommand
-````
-
-Where Appliances actually are devices from Grohe, where device information can be accessed and
-commands can be executed.
-
 ## Java API
 The main entry point of this library is the OndusService class, which provides the public API of
 this library. All other classes, except the models (which represent the data returned by the Grohe
@@ -81,7 +39,7 @@ a JWT is being implemented):
 ````java
 class Example {
     public static void main(String[] args) {
-        OndusService.login("email@example.com", "YourStrongPassword");
+        OndusService.loginWebform("email@example.com", "YourStrongPassword");
     }
 }
 ````
@@ -92,10 +50,9 @@ such as the list of locations or rooms:
 ````java
 class Example {
     public static void main(String[] args) {
-        List<Location> locations = ondusService.getLocations();
-        List<Room> rooms = ondusService.getRooms(locations.get(0));
+        List<BaseAppliance> appliances = ondusService.appliances();
         
-        System.out.println(rooms.get(0).getName());
+        System.out.println(appliances.get(0).getName());
     }
 }
 ````
