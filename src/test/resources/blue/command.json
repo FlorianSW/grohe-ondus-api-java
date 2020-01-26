@@ -1,0 +1,17 @@
+{
+  "appliance_id": "ae9fd2e3-4285-48a0-9b8a-692745702d83",
+  "type": 104,
+  "command": {
+    "co2_status_reset": false,
+    "tap_type": 0,
+    "cleaning_mode": false,
+    "filter_status_reset": false,
+    "get_current_measurement": false,
+    "tap_amount": 0,
+    "factory_reset": false,
+    "revoke_flush_confirmation": true,
+    "exec_auto_flush": false
+  },
+  "commandb64": "IAAAAA==",
+  "timestamp": "2020-01-18T09:41:46.984Z"
+}

@@ -3,6 +3,7 @@ package org.grohe.ondus.api.actions;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.*;
+import org.grohe.ondus.api.model.guard.Appliance;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,7 +66,8 @@ public class DashboardActionTest {
         room.setLocation(location);
         location.setRooms(Collections.singletonList(room));
 
-        SenseGuardAppliance appliance = new SenseGuardAppliance();
+        Appliance appliance = new Appliance();
+        appliance.setType(Appliance.TYPE);
         appliance.setRoom(room);
         room.setAppliances(Collections.singletonList(appliance));
         return location;

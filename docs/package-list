@@ -2,3 +2,6 @@ org.grohe.ondus.api
 org.grohe.ondus.api.actions
 org.grohe.ondus.api.client
 org.grohe.ondus.api.model
+org.grohe.ondus.api.model.blue
+org.grohe.ondus.api.model.guard
+org.grohe.ondus.api.model.sense

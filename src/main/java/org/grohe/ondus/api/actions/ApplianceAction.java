@@ -1,10 +1,15 @@
 package org.grohe.ondus.api.actions;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NoArgsConstructor;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.*;
+import org.grohe.ondus.api.model.guard.ApplianceCommand;
+import org.grohe.ondus.api.model.sense.Appliance;
+import org.grohe.ondus.api.model.sense.ApplianceData;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
@@ -38,25 +43,19 @@ public class ApplianceAction extends AbstractAction {
         }
 
         Optional<BaseAppliance> applianceOptional = Optional.empty();
-        Optional<BaseApplianceList> applianceListOptional = applianceApiResponse.getContentAs(BaseApplianceList.class);
-        if (applianceListOptional.isPresent()) {
-            BaseApplianceList applianceList = applianceListOptional.get();
-            if (applianceList.size() == 1) {
-                BaseAppliance appliance = applianceList.get(0);
-                switch (appliance.getType()) {
-                    case SenseGuardAppliance.TYPE:
-                        appliance = applianceApiResponse.getContentAs(SenseGuardApplianceList.class).get().get(0);
-                        break;
-                    case SenseAppliance.TYPE:
-                        appliance = applianceApiResponse.getContentAs(SenseApplianceList.class).get().get(0);
-                        break;
-                }
-                appliance.setRoom(inRoom);
-                applianceOptional = Optional.of(appliance);
-            }
+        Optional<? extends ArrayList> nodeList = applianceApiResponse.getContentAs(new ArrayList<JsonNode>().getClass());
+        if (!nodeList.isPresent()) {
+            return applianceOptional;
+        }
+        inRoom.setAppliancesAsJson(nodeList.get());
+
+        if (inRoom.getAppliances().isEmpty()) {
+            return applianceOptional;
         }
 
-        return applianceOptional;
+        BaseAppliance appliance = inRoom.getAppliances().get(0);
+        appliance.setRoom(inRoom);
+        return Optional.of(appliance);
     }
 
     public Optional<BaseApplianceData> getApplianceData(BaseAppliance appliance) throws IOException {
@@ -74,11 +73,11 @@ public class ApplianceAction extends AbstractAction {
         if (applianceOptional.isPresent()) {
             BaseApplianceData applianceData = applianceOptional.get();
             switch (applianceData.getType()) {
-                case SenseGuardAppliance.TYPE:
-                    applianceData = applianceApiResponse.getContentAs(SenseGuardApplianceData.class).get();
+                case org.grohe.ondus.api.model.guard.Appliance.TYPE:
+                    applianceData = applianceApiResponse.getContentAs(org.grohe.ondus.api.model.guard.ApplianceData.class).get();
                     break;
-                case SenseAppliance.TYPE:
-                    applianceData = applianceApiResponse.getContentAs(SenseApplianceData.class).get();
+                case Appliance.TYPE:
+                    applianceData = applianceApiResponse.getContentAs(ApplianceData.class).get();
                     break;
             }
             applianceData.setAppliance(appliance);
@@ -102,7 +101,7 @@ public class ApplianceAction extends AbstractAction {
         return new SimpleDateFormat("yyyy-MM-dd").format(Date.from(from));
     }
 
-    public Optional<ApplianceCommand> getApplianceCommand(SenseGuardAppliance appliance) throws IOException {
+    public Optional<ApplianceCommand> getApplianceCommand(org.grohe.ondus.api.model.guard.Appliance appliance) throws IOException {
         ApiResponse<ApplianceCommand> applianceApiResponse = getApiClient()
                 .get(String.format(getApiClient().apiPath() + APPLIANCE_COMMAND_URL_TEMPLATE,
                         appliance.getRoom().getLocation().getId(),
@@ -123,7 +122,7 @@ public class ApplianceAction extends AbstractAction {
         return applianceDataOptional;
     }
 
-    public void putApplianceCommand(SenseGuardAppliance appliance, ApplianceCommand command) throws IOException {
+    public void putApplianceCommand(org.grohe.ondus.api.model.guard.Appliance appliance, ApplianceCommand command) throws IOException {
         getApiClient().post(String.format(getApiClient().apiPath() + APPLIANCE_COMMAND_URL_TEMPLATE,
                 appliance.getRoom().getLocation().getId(),
                 appliance.getRoom().getId(),
@@ -156,9 +155,9 @@ public class ApplianceAction extends AbstractAction {
     static class BaseApplianceList extends ArrayList<BaseAppliance> {
     }
 
-    static class SenseGuardApplianceList extends ArrayList<SenseGuardAppliance> {
+    static class SenseGuardApplianceList extends ArrayList<org.grohe.ondus.api.model.guard.Appliance> {
     }
 
-    static class SenseApplianceList extends ArrayList<SenseAppliance> {
+    static class SenseApplianceList extends ArrayList<Appliance> {
     }
 }

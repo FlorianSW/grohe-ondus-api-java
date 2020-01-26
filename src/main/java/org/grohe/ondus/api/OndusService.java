@@ -5,6 +5,9 @@ import org.grohe.ondus.api.actions.DashboardAction;
 import org.grohe.ondus.api.actions.RefreshTokenAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.model.*;
+import org.grohe.ondus.api.model.guard.Appliance;
+import org.grohe.ondus.api.model.guard.ApplianceCommand;
+import org.grohe.ondus.api.model.guard.ApplianceData;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -124,7 +127,7 @@ public class OndusService {
      *
      * @param inRoom      The {@link Room} to look for the appliance in
      * @param applianceId The room ID as retrieved by the GROHE Api
-     * @return One specific {@link SenseGuardAppliance}
+     * @return One specific {@link Appliance}
      * @throws IOException When a communication error occurs
      */
     public Optional<BaseAppliance> getAppliance(Room inRoom, String applianceId) throws IOException {
@@ -139,8 +142,8 @@ public class OndusService {
      * {@link #applianceData(BaseAppliance, Instant, Instant)} to minimize the length of the result and the payload
      * exchanged with the GROHE Api.
      *
-     * @param appliance The {@link SenseGuardAppliance} to retrieve data from
-     * @return The {@link SenseGuardApplianceData} of the appliance
+     * @param appliance The {@link Appliance} to retrieve data from
+     * @return The {@link ApplianceData} of the appliance
      * @throws IOException When a communication error occurs
      */
     public Optional<BaseApplianceData> applianceData(BaseAppliance appliance) throws IOException {
@@ -156,7 +159,7 @@ public class OndusService {
      * @param appliance The {@link BaseAppliance} to retrieve data from
      * @param from      Needs to be an instance of {@link Instant} which is at least one day before to
      * @param to        Needs to be an instance of {@link Instant} which is at least one day after from
-     * @return The {@link SenseGuardApplianceData} of the appliance in the given time range
+     * @return The {@link ApplianceData} of the appliance in the given time range
      * @throws IOException When a communication error occurs
      */
     public Optional<BaseApplianceData> applianceData(BaseAppliance appliance, Instant from, Instant to) throws IOException {
@@ -169,11 +172,11 @@ public class OndusService {
      * Retrieves the current state of the appliances {@link ApplianceCommand} saved for the appliance in the
      * GROHE account. This can be used to inspect the current state of the appliance and activated/queued commands.
      *
-     * @param appliance The {@link SenseGuardAppliance} to retrieve command information from
+     * @param appliance The {@link Appliance} to retrieve command information from
      * @return The {@link ApplianceCommand} of the appliance
      * @throws IOException When a communication error occurs
      */
-    public Optional<ApplianceCommand> applianceCommand(SenseGuardAppliance appliance) throws IOException {
+    public Optional<ApplianceCommand> applianceCommand(Appliance appliance) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         return action.getApplianceCommand(appliance);
@@ -201,7 +204,7 @@ public class OndusService {
      * @param open      The requested valve state
      * @throws IOException When a communication error occurs
      */
-    public void setValveOpen(SenseGuardAppliance appliance, boolean open) throws IOException {
+    public void setValveOpen(Appliance appliance, boolean open) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         Optional<ApplianceCommand> applianceCommandOptional = applianceCommand(appliance);

@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.grohe.ondus.api.actions.ApplianceAction;
+import org.grohe.ondus.api.model.guard.Appliance;
 
 @Getter
 @Setter
@@ -32,5 +34,17 @@ public class BaseAppliance {
     public BaseAppliance(String applianceId, Room inRoom) {
         this.applianceId = applianceId;
         this.room = inRoom;
+    }
+
+    public static Class<? extends BaseAppliance> classOfType(int type) {
+        switch (type) {
+            case org.grohe.ondus.api.model.guard.Appliance.TYPE:
+                return Appliance.class;
+            case org.grohe.ondus.api.model.sense.Appliance.TYPE:
+                return org.grohe.ondus.api.model.sense.Appliance.class;
+            case org.grohe.ondus.api.model.blue.Appliance.TYPE:
+                return org.grohe.ondus.api.model.blue.Appliance.class;
+        }
+        throw new IllegalArgumentException("Unknown appliance type " + type);
     }
 }
