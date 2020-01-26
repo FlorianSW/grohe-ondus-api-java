@@ -4,14 +4,12 @@ import lombok.NoArgsConstructor;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.BaseAppliance;
 import org.grohe.ondus.api.model.Dashboard;
-import org.grohe.ondus.api.model.Location;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @NoArgsConstructor
 public class DashboardAction extends AbstractAction {

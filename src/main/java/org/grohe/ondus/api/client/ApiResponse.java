@@ -1,5 +1,6 @@
 package org.grohe.ondus.api.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedInputStream;
@@ -44,6 +45,15 @@ public class ApiResponse<T> {
     }
 
     public <E extends T> Optional<E> getContentAs(Class<E> targetClass) {
+        E contentForTargetClass = null;
+        try {
+            contentForTargetClass = new ObjectMapper().readValue(this.content, targetClass);
+        } catch (IOException ignored) {
+        }
+        return Optional.ofNullable(contentForTargetClass);
+    }
+
+    public <E extends T> Optional<E> getContentAs(TypeReference<E> targetClass) {
         E contentForTargetClass = null;
         try {
             contentForTargetClass = new ObjectMapper().readValue(this.content, targetClass);

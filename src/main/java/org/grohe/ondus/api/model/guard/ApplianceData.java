@@ -9,7 +9,6 @@ import lombok.Setter;
 import org.grohe.ondus.api.model.BaseAppliance;
 import org.grohe.ondus.api.model.BaseApplianceData;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 

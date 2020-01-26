@@ -1,5 +1,6 @@
 package org.grohe.ondus.api.actions;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NoArgsConstructor;
 import org.grohe.ondus.api.client.ApiResponse;
@@ -9,31 +10,19 @@ import org.grohe.ondus.api.model.sense.Appliance;
 import org.grohe.ondus.api.model.sense.ApplianceData;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 public class ApplianceAction extends AbstractAction {
-    private static final String APPLIANCES_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances";
     private static final String APPLIANCE_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s";
     private static final String APPLIANCE_DATA_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/data";
     private static final String APPLIANCE_DATA_WITH_RANGE_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/data?from=%s&to=%s";
     private static final String APPLIANCE_COMMAND_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/command";
     private static final String APPLIANCE_STATUS_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/status";
-
-    public List<BaseAppliance> getAppliances(Room inRoom) throws IOException {
-        ApiResponse<BaseAppliance[]> locationsResponse = getApiClient()
-                .get(String.format(getApiClient().apiPath() + APPLIANCES_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId()), BaseAppliance[].class);
-        if (locationsResponse.getStatusCode() != 200) {
-            return Collections.emptyList();
-        }
-        List<BaseAppliance> appliances = Arrays.asList(locationsResponse.getContent().orElseGet(() -> new BaseAppliance[]{}));
-
-        return appliances.stream().peek(appliance -> appliance.setRoom(inRoom)).collect(Collectors.toList());
-    }
 
     public Optional<BaseAppliance> getAppliance(Room inRoom, String applianceId) throws IOException {
         ApiResponse<List> applianceApiResponse = getApiClient()
@@ -43,7 +32,8 @@ public class ApplianceAction extends AbstractAction {
         }
 
         Optional<BaseAppliance> applianceOptional = Optional.empty();
-        Optional<? extends ArrayList> nodeList = applianceApiResponse.getContentAs(new ArrayList<JsonNode>().getClass());
+        Optional<List<JsonNode>> nodeList = applianceApiResponse.getContentAs(new TypeReference<List<JsonNode>>() {
+        });
         if (!nodeList.isPresent()) {
             return applianceOptional;
         }
@@ -101,25 +91,32 @@ public class ApplianceAction extends AbstractAction {
         return new SimpleDateFormat("yyyy-MM-dd").format(Date.from(from));
     }
 
-    public Optional<ApplianceCommand> getApplianceCommand(org.grohe.ondus.api.model.guard.Appliance appliance) throws IOException {
-        ApiResponse<ApplianceCommand> applianceApiResponse = getApiClient()
+    public Optional<BaseApplianceCommand> getApplianceCommand(BaseAppliance appliance) throws IOException {
+        ApiResponse<BaseApplianceCommand> applianceApiResponse = getApiClient()
                 .get(String.format(getApiClient().apiPath() + APPLIANCE_COMMAND_URL_TEMPLATE,
                         appliance.getRoom().getLocation().getId(),
                         appliance.getRoom().getId(),
                         appliance.getApplianceId()
-                ), ApplianceCommand.class);
+                ), BaseApplianceCommand.class);
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
 
-        Optional<ApplianceCommand> applianceDataOptional = applianceApiResponse.getContent();
-        if (applianceDataOptional.isPresent()) {
-            ApplianceCommand applianceData = applianceDataOptional.get();
-            applianceData.setAppliance(appliance);
-            applianceDataOptional = Optional.of(applianceData);
+        Optional<BaseApplianceCommand> applianceDataOptional = applianceApiResponse.getContent();
+        if (!applianceDataOptional.isPresent()) {
+            return Optional.empty();
         }
-
-        return applianceDataOptional;
+        BaseApplianceCommand applianceData = applianceDataOptional.get();
+        switch (applianceData.getType()) {
+            case org.grohe.ondus.api.model.guard.Appliance.TYPE:
+                applianceData = applianceApiResponse.getContentAs(ApplianceCommand.class).get();
+                break;
+            case org.grohe.ondus.api.model.blue.Appliance.TYPE:
+                applianceData = applianceApiResponse.getContentAs(org.grohe.ondus.api.model.blue.ApplianceCommand.class).get();
+                break;
+        }
+        applianceData.setAppliance(appliance);
+        return Optional.of(applianceData);
     }
 
     public void putApplianceCommand(org.grohe.ondus.api.model.guard.Appliance appliance, ApplianceCommand command) throws IOException {
@@ -150,14 +147,5 @@ public class ApplianceAction extends AbstractAction {
         }
 
         return applianceStatusOptional;
-    }
-
-    static class BaseApplianceList extends ArrayList<BaseAppliance> {
-    }
-
-    static class SenseGuardApplianceList extends ArrayList<org.grohe.ondus.api.model.guard.Appliance> {
-    }
-
-    static class SenseApplianceList extends ArrayList<Appliance> {
     }
 }

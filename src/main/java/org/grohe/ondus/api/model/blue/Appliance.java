@@ -6,8 +6,6 @@ import lombok.*;
 import org.grohe.ondus.api.model.BaseAppliance;
 import org.grohe.ondus.api.model.Room;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +14,7 @@ public class Appliance extends BaseAppliance {
     public static final int TYPE = 104;
 
     private Config config;
+    private State state;
     @Getter(AccessLevel.NONE)
     @JsonProperty("data_latest")
     private DataLatest dataLatest;

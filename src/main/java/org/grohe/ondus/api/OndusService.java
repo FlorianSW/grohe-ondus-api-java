@@ -176,7 +176,7 @@ public class OndusService {
      * @return The {@link ApplianceCommand} of the appliance
      * @throws IOException When a communication error occurs
      */
-    public Optional<ApplianceCommand> applianceCommand(Appliance appliance) throws IOException {
+    public Optional<BaseApplianceCommand> applianceCommand(BaseAppliance appliance) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         return action.getApplianceCommand(appliance);
@@ -207,11 +207,11 @@ public class OndusService {
     public void setValveOpen(Appliance appliance, boolean open) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
-        Optional<ApplianceCommand> applianceCommandOptional = applianceCommand(appliance);
+        Optional<BaseApplianceCommand> applianceCommandOptional = applianceCommand(appliance);
         if (!applianceCommandOptional.isPresent()) {
             return;
         }
-        ApplianceCommand applianceCommand = applianceCommandOptional.get();
+        ApplianceCommand applianceCommand = (ApplianceCommand) applianceCommandOptional.get();
         ApplianceCommand.Command command = applianceCommand.getCommand();
         command.setValveOpen(open);
         applianceCommand.setCommand(command);

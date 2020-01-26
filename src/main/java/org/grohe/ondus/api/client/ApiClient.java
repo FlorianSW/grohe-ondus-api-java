@@ -88,8 +88,4 @@ public class ApiClient {
     public String apiPath() {
         return "/v3/";
     }
-
-    public enum Version {
-        v2, v3
-    }
 }

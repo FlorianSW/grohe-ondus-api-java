@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.grohe.ondus.api.actions.ApplianceAction;
 import org.grohe.ondus.api.model.guard.Appliance;
 
 @Getter

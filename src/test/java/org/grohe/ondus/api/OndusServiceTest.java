@@ -29,8 +29,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class OndusServiceTest {
-    private static final String A_USERNAME = "A_USERNAME";
-    private static final String A_PASSWORD = "A_PASSWORD";
     private static final String A_REFRESH_TOKEN = "A_REFRESH_TOKEN";
 
     private ApiClient mockApiClient;
@@ -52,23 +50,6 @@ public class OndusServiceTest {
         when(mockApiClient.post(eq("/v3/iot/oidc/refresh"), any(), eq(RefreshTokenResponse.class))).thenReturn(mockApiResponse);
 
         OndusService.login("A_REFRESH_TOKEN", mockApiClient);
-    }
-
-    @Test
-    public void login_validRefreshToken_returnsOndusService() throws Exception {
-        RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse(A_TOKEN, A_REFRESH_TOKEN, 1);
-        ApiResponse mockApiResponse = mock(ApiResponse.class);
-        when(mockApiResponse.getContent()).thenReturn(Optional.of(refreshTokenResponse));
-        when(mockApiClient.post(
-                eq("/v3/iot/oidc/refresh"),
-                eq(new RefreshTokenAction.RefreshTokenRequest(A_REFRESH_TOKEN)),
-                eq(RefreshTokenResponse.class))
-        ).thenReturn(mockApiResponse);
-
-        OndusService actualService = OndusService.login(A_REFRESH_TOKEN, mockApiClient);
-
-        assertNotNull(actualService);
-        verify(mockApiClient).setToken(anyString());
     }
 
     @Test
@@ -129,42 +110,6 @@ public class OndusServiceTest {
     }
 
     @Test
-    public void getAppliance_callsApplianceAction() throws Exception {
-        ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getAppliance(any(Room.class), anyString())).thenReturn(Optional.of(new Appliance()));
-        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
-        OndusService ondusService = getOndusServiceWithApiClient();
-
-        ondusService.getAppliance(room123, "123");
-
-        verify(applianceAction).getAppliance(any(Room.class), eq("123"));
-    }
-
-    @Test
-    public void appliances_callsDashboardAction() throws Exception {
-        DashboardAction dashboardAction = mock(DashboardAction.class);
-        when(dashboardAction.appliances()).thenReturn(Collections.singletonList(new Appliance()));
-        when(mockApiClient.getAction(DashboardAction.class)).thenReturn(dashboardAction);
-        OndusService ondusService = getOndusServiceWithApiClient();
-
-        ondusService.appliances();
-
-        verify(dashboardAction).appliances();
-    }
-
-    @Test
-    public void getApplianceData_callsApplianceAction() throws Exception {
-        ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getApplianceData(any(Appliance.class))).thenReturn(Optional.of(new ApplianceData()));
-        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
-        OndusService ondusService = getOndusServiceWithApiClient();
-
-        ondusService.applianceData(new Appliance("123", room123));
-
-        verify(applianceAction).getApplianceData(any(Appliance.class));
-    }
-
-    @Test
     public void getApplianceData_withRange_callsApplianceAction() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
         when(applianceAction.getApplianceData(any(Appliance.class), any(Instant.class), any(Instant.class)))
@@ -180,18 +125,6 @@ public class OndusServiceTest {
     }
 
     @Test
-    public void getApplianceCommand_callsApplianceAction() throws Exception {
-        ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(applianceAction.getApplianceCommand(any(Appliance.class))).thenReturn(Optional.of(new ApplianceCommand()));
-        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
-        OndusService ondusService = getOndusServiceWithApiClient();
-
-        ondusService.applianceCommand(new Appliance("123", room123));
-
-        verify(applianceAction).getApplianceCommand(any(Appliance.class));
-    }
-
-    @Test
     public void getApplianceStatus_callsApplianceAction() throws Exception {
         ApplianceAction applianceAction = mock(ApplianceAction.class);
         when(applianceAction.getApplianceStatus(any(BaseAppliance.class))).thenReturn(Optional.of(new ApplianceStatus()));
@@ -201,28 +134,6 @@ public class OndusServiceTest {
         ondusService.applianceStatus(new BaseAppliance("123", room123));
 
         verify(applianceAction).getApplianceStatus(any(BaseAppliance.class));
-    }
-
-    @Test
-    public void setValveOpen_callsApplianceActionWithApplianceCommand() throws Exception {
-        ApplianceAction applianceAction = mock(ApplianceAction.class);
-        when(mockApiClient.getAction(ApplianceAction.class)).thenReturn(applianceAction);
-        when(applianceAction.getApplianceCommand(any(Appliance.class))).thenReturn(Optional.of(getMockApplianceCommand()));
-        OndusService ondusService = getOndusServiceWithApiClient();
-
-        ondusService.setValveOpen(new Appliance("123", room123), true);
-
-        ArgumentCaptor<ApplianceCommand> applianceCommandCaptor = ArgumentCaptor.forClass(ApplianceCommand.class);
-        verify(applianceAction).putApplianceCommand(any(Appliance.class), applianceCommandCaptor.capture());
-        ApplianceCommand command = applianceCommandCaptor.getValue();
-        assertTrue(command.getCommand().getValveOpen());
-    }
-
-    private ApplianceCommand getMockApplianceCommand() {
-        ApplianceCommand applianceCommand = new ApplianceCommand(new Appliance("123", room123));
-        applianceCommand.setCommand(new ApplianceCommand.Command());
-
-        return applianceCommand;
     }
 
     private OndusService getOndusServiceWithApiClient() {

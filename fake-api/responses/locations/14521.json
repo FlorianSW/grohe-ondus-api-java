@@ -1,0 +1,24 @@
+{
+  "id": 14521,
+  "name": "Home",
+  "type": 2,
+  "role": "owner",
+  "timezone": "",
+  "water_cost": -1,
+  "energy_cost": -1,
+  "heating_type": -1,
+  "currency": "EUR",
+  "default_water_cost": 0.004256,
+  "default_energy_cost": 0.003977,
+  "default_heating_type": 2,
+  "emergency_shutdown_enable": true,
+  "address": {
+    "street": "",
+    "city": "",
+    "zipcode": "",
+    "housenumber": "",
+    "country": "Deutschland",
+    "country_code": "DE",
+    "additionalInfo": ""
+  }
+}

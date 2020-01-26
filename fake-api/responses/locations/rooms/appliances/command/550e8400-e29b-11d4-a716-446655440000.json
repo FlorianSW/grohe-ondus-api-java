@@ -1,0 +1,13 @@
+{
+  "appliance_id": "550e8400-e29b-11d4-a716-446655440000",
+  "type": 103,
+  "command": {
+    "measure_now": false,
+    "temp_user_unlock_on": false,
+    "buzzer_on": false,
+    "buzzer_sound_profile": 2,
+    "valve_open": true
+  },
+  "commandb64": "AgI=",
+  "timestamp": "2019-12-01T15:42:03.786Z"
+}

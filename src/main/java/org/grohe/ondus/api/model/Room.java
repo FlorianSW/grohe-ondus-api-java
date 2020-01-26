@@ -42,13 +42,6 @@ public class Room {
         }).collect(Collectors.toList());
     }
 
-    @JsonIgnore
-    public void setAppliances(List<BaseAppliance> appliances) {
-        appliancesAsJson = appliances.stream()
-                .map(appliance -> mapper.convertValue(appliance, JsonNode.class))
-                .collect(Collectors.toList());
-    }
-
     public Room(int id, Location location) {
         this.id = id;
         this.location = location;

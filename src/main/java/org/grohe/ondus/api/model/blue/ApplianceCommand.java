@@ -1,43 +1,36 @@
 package org.grohe.ondus.api.model.blue;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.grohe.ondus.api.model.BaseApplianceCommand;
 import org.grohe.ondus.api.model.guard.Appliance;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@EqualsAndHashCode(of = "applianceId")
-public class ApplianceCommand {
-    @JsonProperty("appliance_id")
-    private String applianceId;
-    @JsonProperty("type")
-    private Integer type;
+@EqualsAndHashCode(callSuper = true)
+public class ApplianceCommand extends BaseApplianceCommand {
     @JsonProperty("command")
     private Command command;
     @JsonProperty("commandb64")
     private String commandb64;
     @JsonProperty("timestamp")
     private String timestamp;
-    @JsonIgnore
-    private Appliance appliance = new Appliance();
 
     public ApplianceCommand(Appliance forAppliance) {
-        this.appliance = forAppliance;
-        this.applianceId = forAppliance.getApplianceId();
+        super(forAppliance);
     }
 
     @Getter
     @Setter
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Command {
+    public static class Command {
         @JsonProperty("co2_status_reset")
         private Boolean co2StatusReset;
         @JsonProperty("tap_type")

@@ -1,0 +1,131 @@
+{
+  "appliance_id": "550e8400-e29b-11d4-a716-446655440000",
+  "installation_date": "2019-05-11T12:22:07.000+00:00",
+  "name": "A_NAME",
+  "serial_number": "000000000000000000000000000000000000000000000000",
+  "type": 103,
+  "version": "01.44.Z22.0400.0101",
+  "tdt": "2020-01-26T17:03:09.000+00:00",
+  "timezone": 60,
+  "config": {
+    "thresholds": [
+      {
+        "quantity": "flowrate",
+        "type": "min",
+        "value": 3,
+        "enabled": false
+      },
+      {
+        "quantity": "flowrate",
+        "type": "max",
+        "value": 50,
+        "enabled": true
+      },
+      {
+        "quantity": "pressure",
+        "type": "min",
+        "value": 2,
+        "enabled": false
+      },
+      {
+        "quantity": "pressure",
+        "type": "max",
+        "value": 8,
+        "enabled": false
+      },
+      {
+        "quantity": "temperature_guard",
+        "type": "min",
+        "value": 5,
+        "enabled": false
+      },
+      {
+        "quantity": "temperature_guard",
+        "type": "max",
+        "value": 45,
+        "enabled": false
+      }
+    ],
+    "measurement_period": 900,
+    "measurement_transmission_intervall": 900,
+    "measurement_transmission_intervall_offset": 1,
+    "action_on_major_leakage": 1,
+    "action_on_minor_leakage": 1,
+    "action_on_micro_leakage": 0,
+    "monitor_frost_alert": true,
+    "monitor_lower_flow_limit": false,
+    "monitor_upper_flow_limit": true,
+    "monitor_lower_pressure_limit": false,
+    "monitor_upper_pressure_limit": false,
+    "monitor_lower_temperature_limit": false,
+    "monitor_upper_temperature_limit": false,
+    "monitor_major_leakage": true,
+    "monitor_minor_leakage": true,
+    "monitor_micro_leakage": true,
+    "monitor_system_error": false,
+    "monitor_btw_0_1_and_0_8_leakage": true,
+    "monitor_withdrawel_amount_limit_breach": true,
+    "detection_interval": 11250,
+    "impulse_ignore": 10,
+    "time_ignore": 20,
+    "pressure_tolerance_band": 10,
+    "pressure_drop": 50,
+    "detection_time": 30,
+    "action_on_btw_0_1_and_0_8_leakage": 1,
+    "action_on_withdrawel_amount_limit_breach": 1,
+    "withdrawel_amount_limit": 300,
+    "sprinkler_mode_start_time": 0,
+    "sprinkler_mode_stop_time": 1439,
+    "sprinkler_mode_active_monday": false,
+    "sprinkler_mode_active_tuesday": false,
+    "sprinkler_mode_active_wednesday": false,
+    "sprinkler_mode_active_thursday": false,
+    "sprinkler_mode_active_friday": false,
+    "sprinkler_mode_active_saturday": false,
+    "sprinkler_mode_active_sunday": false
+  },
+  "role": "owner",
+  "registration_complete": true,
+  "calculate_average_since": "2019-02-18T22:43:07.000Z",
+  "notifications": [],
+  "status": [
+    {
+      "type": "update_available",
+      "value": 0
+    },
+    {
+      "type": "connection",
+      "value": 1
+    }
+  ],
+  "data_latest": {
+    "measurement": {
+      "flowrate": 0,
+      "pressure": 4.4,
+      "temperature_guard": 13.5,
+      "timestamp": "2020-01-26T18:02:39.000+01:00"
+    },
+    "average_monthly_consumption": 4071,
+    "daily_cost": 0.8,
+    "daily_consumption": 188,
+    "average_daily_consumption": 147,
+    "withdrawals": {
+      "starttime": "2020-01-26T17:58:57.000+01:00",
+      "stoptime": "2020-01-26T17:58:57.000+01:00",
+      "waterconsumption": 0,
+      "maxflowrate": 3
+    }
+  },
+  "command": {
+    "measure_now": false,
+    "temp_user_unlock_on": false,
+    "buzzer_on": false,
+    "buzzer_sound_profile": 2,
+    "valve_open": true
+  },
+  "installer": {
+    "name": "",
+    "email": "",
+    "phone": ""
+  }
+}

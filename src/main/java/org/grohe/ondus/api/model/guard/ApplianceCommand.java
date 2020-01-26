@@ -1,30 +1,23 @@
 package org.grohe.ondus.api.model.guard;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.grohe.ondus.api.model.guard.Appliance;
+import org.grohe.ondus.api.model.BaseApplianceCommand;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@EqualsAndHashCode(of = "applianceId")
-public class ApplianceCommand {
-    @JsonProperty("appliance_id")
-    public String applianceId;
-    public Integer type;
+@EqualsAndHashCode(callSuper = true)
+public class ApplianceCommand extends BaseApplianceCommand {
     public Command command;
-    @JsonIgnore
-    private Appliance appliance = new Appliance();
 
     public ApplianceCommand(Appliance forAppliance) {
-        this.appliance = forAppliance;
-        this.applianceId = forAppliance.getApplianceId();
+        super(forAppliance);
     }
 
     @Getter
