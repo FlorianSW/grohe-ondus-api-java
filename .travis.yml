@@ -1,5 +1,12 @@
 language: java
 
+env:
+  - NODE_VERSION="10.16.0"
+
+before_install:
+  - nvm install $NODE_VERSION
+  - node fake-api/index.js &
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
