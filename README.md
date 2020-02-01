@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/FlorianSW/grohe-ondus-api-java.svg?branch=master)](https://travis-ci.org/FlorianSW/grohe-ondus-api-java)
+[![Download](https://api.bintray.com/packages/floriansw/java-libraries/grohe-ondus-api/images/download.svg)](https://bintray.com/floriansw/java-libraries/grohe-ondus-api/_latestVersion)
+
 # grohe-ondus-api-java
 
 This is a library written in Java which can communicate to the Grohe ONDUS API interface, e.g. to request appliance data or to send commands.
