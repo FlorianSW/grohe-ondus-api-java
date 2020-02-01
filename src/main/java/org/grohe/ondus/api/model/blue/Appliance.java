@@ -15,6 +15,7 @@ public class Appliance extends BaseAppliance {
 
     private Config config;
     private State state;
+    private Parameters params;
     @Getter(AccessLevel.NONE)
     @JsonProperty("data_latest")
     private DataLatest dataLatest;
@@ -58,6 +59,25 @@ public class Appliance extends BaseAppliance {
         private Integer flowRateMedium;
         @JsonProperty("flow_rate_carbonated")
         private Integer flowRateCarbonated;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Parameters {
+        public static final int FILTER_TYPE_S_SIZE = 1;
+        public static final int FILTER_TYPE_ACTIVE_CARBON = 2;
+        public static final int FILTER_TYPE_ULTRA_SAFE = 3;
+        public static final int FILTER_TYPE_MAGNESIUM_PLUS = 4;
+
+        @JsonProperty("water_hardness")
+        private Integer waterHardness;
+        @JsonProperty("carbon_hardness")
+        private Integer carbonHardness;
+        @JsonProperty("filter_type")
+        private Integer filterType;
+        @JsonProperty("variant")
+        private Integer variant;
     }
 
     public static class DataLatest {

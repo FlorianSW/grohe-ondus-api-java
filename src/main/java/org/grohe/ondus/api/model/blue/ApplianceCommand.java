@@ -31,6 +31,10 @@ public class ApplianceCommand extends BaseApplianceCommand {
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Command {
+        public static final int TAP_TYPE_STILL = 1;
+        public static final int TAP_TYPE_MEDIUM = 2;
+        public static final int TAP_TYPE_CARBONATED = 3;
+
         @JsonProperty("co2_status_reset")
         private Boolean co2StatusReset;
         @JsonProperty("tap_type")

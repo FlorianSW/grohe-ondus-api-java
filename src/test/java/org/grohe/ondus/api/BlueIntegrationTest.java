@@ -34,6 +34,7 @@ public class BlueIntegrationTest {
         assertNotNull(((Appliance) appliance).getConfig());
         assertNotNull(((Appliance) appliance).latestMeasurement());
         assertNotNull(((Appliance) appliance).getState());
+        assertNotNull(((Appliance) appliance).getParams());
     }
 
     @Test
