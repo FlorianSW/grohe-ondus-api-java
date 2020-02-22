@@ -218,4 +218,10 @@ public class OndusService {
 
         action.putApplianceCommand(appliance, applianceCommand);
     }
+
+    public void updateAppliance(BaseAppliance appliance) throws IOException {
+        ApplianceAction action = apiClient.getAction(ApplianceAction.class);
+
+        action.putAppliance(appliance);
+    }
 }

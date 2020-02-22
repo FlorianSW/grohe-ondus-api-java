@@ -127,6 +127,14 @@ public class ApplianceAction extends AbstractAction {
         ), command, ApplianceCommand.class);
     }
 
+    public void putAppliance(BaseAppliance appliance) throws IOException {
+        getApiClient().post(String.format(getApiClient().apiPath() + APPLIANCE_COMMAND_URL_TEMPLATE,
+                appliance.getRoom().getLocation().getId(),
+                appliance.getRoom().getId(),
+                appliance.getApplianceId()
+        ), appliance, Object.class);
+    }
+
     public Optional<ApplianceStatus> getApplianceStatus(BaseAppliance appliance) throws IOException {
         ApiResponse<ApplianceStatus.ApplianceStatusModel[]> applianceApiResponse = getApiClient()
                 .get(String.format(getApiClient().apiPath() + APPLIANCE_STATUS_URL_TEMPLATE,

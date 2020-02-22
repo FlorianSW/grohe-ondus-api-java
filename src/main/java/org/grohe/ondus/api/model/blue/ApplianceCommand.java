@@ -27,31 +27,37 @@ public class ApplianceCommand extends BaseApplianceCommand {
     }
 
     @Getter
-    @Setter
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Command {
-        public static final int TAP_TYPE_STILL = 1;
-        public static final int TAP_TYPE_MEDIUM = 2;
-        public static final int TAP_TYPE_CARBONATED = 3;
-
         @JsonProperty("co2_status_reset")
-        private Boolean co2StatusReset;
+        @Setter
+        private boolean co2StatusReset;
         @JsonProperty("tap_type")
-        private Integer tapType;
+        private int tapType;
         @JsonProperty("cleaning_mode")
-        private Boolean cleaningMode;
+        private boolean cleaningMode;
         @JsonProperty("filter_status_reset")
-        private Boolean filterStatusReset;
+        @Setter
+        private boolean filterStatusReset;
         @JsonProperty("get_current_measurement")
-        private Boolean getCurrentMeasurement;
+        private boolean getCurrentMeasurement;
         @JsonProperty("tap_amount")
-        private Integer tapAmount;
+        private int tapAmount;
         @JsonProperty("factory_reset")
-        private Boolean factoryReset;
+        private boolean factoryReset;
         @JsonProperty("revoke_flush_confirmation")
-        private Boolean revokeFlushConfirmation;
+        private boolean revokeFlushConfirmation;
         @JsonProperty("exec_auto_flush")
-        private Boolean execAutoFlush;
+        private boolean execAutoFlush;
+
+
+        public void updateFilterType(TapType type) {
+            this.tapType = type.apiValue;
+        }
+
+        public TapType filterType() {
+            return TapType.of(tapType);
+        }
     }
 }
