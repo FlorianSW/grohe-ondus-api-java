@@ -133,8 +133,8 @@ public class ApplianceAction extends AbstractAction {
                 appliance.getRoom().getId(),
                 appliance.getApplianceId()
         ), appliance, new TypeReference<Object>() {});
-        if (response.getStatusCode() != 200) {
-            throw new UnexpectedResponse(200, response.getStatusCode());
+        if (response.getStatusCode() != 201) {
+            throw new UnexpectedResponse(201, response.getStatusCode());
         }
     }
 
