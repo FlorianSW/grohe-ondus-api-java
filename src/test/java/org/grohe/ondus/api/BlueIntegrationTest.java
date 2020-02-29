@@ -41,7 +41,6 @@ public class BlueIntegrationTest {
     @Test
     public void updatesParameters() throws Exception {
         OndusService service = OndusService.login("A_REFRESH_TOKEN", new ApiClient("http://localhost:3000"));
-        Appliance beforeUpdate = (Appliance) service.getAppliance(room, "550e8400-e29b-11d4-a716-446655440001").get();
 
         Appliance appliance = (Appliance) service.getAppliance(room, "550e8400-e29b-11d4-a716-446655440001").get();
         Parameters params = appliance.getParams();
@@ -51,13 +50,12 @@ public class BlueIntegrationTest {
         service.updateAppliance(appliance);
 
         Appliance actual = (Appliance) service.getAppliance(room, "550e8400-e29b-11d4-a716-446655440001").get();
-        assertEquals(actual, beforeUpdate);
+        assertEquals(actual, appliance);
     }
 
     @Test
     public void updatesConfig() throws Exception {
         OndusService service = OndusService.login("A_REFRESH_TOKEN", new ApiClient("http://localhost:3000"));
-        Appliance beforeUpdate = (Appliance) service.getAppliance(room, "550e8400-e29b-11d4-a716-446655440001").get();
 
         Appliance appliance = (Appliance) service.getAppliance(room, "550e8400-e29b-11d4-a716-446655440001").get();
         Config config = appliance.getConfig();
@@ -65,7 +63,7 @@ public class BlueIntegrationTest {
         service.updateAppliance(appliance);
 
         Appliance actual = (Appliance) service.getAppliance(room, "550e8400-e29b-11d4-a716-446655440001").get();
-        assertEquals(actual, beforeUpdate);
+        assertEquals(actual, appliance);
     }
 
     @Test

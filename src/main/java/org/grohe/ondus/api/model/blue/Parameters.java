@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode
 public class Parameters {
-    @Getter
-    @JsonProperty("water_hardness")
-    private Integer waterHardness;
     @JsonProperty("variant")
     @Getter
     private Integer variant;

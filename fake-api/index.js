@@ -60,7 +60,7 @@ const requestHandler = (request, response) => {
         ifAuthenticated(request, response, function (resp) {
             resp.write(JSON.stringify([guard, blue]));
         });
-    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000') {
+    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
             resp.write(JSON.stringify([guard]));
         });
@@ -84,7 +84,7 @@ const requestHandler = (request, response) => {
                 resp.write(data);
             }, false);
         });
-    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001') {
+    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
             resp.write(JSON.stringify([blue]));
         });
@@ -99,7 +99,13 @@ const requestHandler = (request, response) => {
         });
         request.on('end', () => {
             ifAuthenticated(request, response, function (resp) {
-                blue = JSON.parse(data);
+                const parsedData = JSON.parse(data);
+                if (parsedData.params.water_hardness !== undefined) {
+                    resp.writeHead(400);
+                    resp.end();
+                    return;
+                }
+                blue = parsedData;
                 resp.writeHead(201, {"Content-Type": "application/json"});
                 resp.write(data);
             }, false);
