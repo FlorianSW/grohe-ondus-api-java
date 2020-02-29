@@ -219,6 +219,15 @@ public class OndusService {
         action.putApplianceCommand(appliance, applianceCommand);
     }
 
+    /**
+     * Takes the representation of an appliance and publishes it into the API. Doing this will update the fields of
+     * the saved representation of the appliance in the API with the ones passed in here, allowing one to change fields
+     * of the appliance.
+     *
+     * @param appliance The appliance with the updated fields (the BaseAppliance.applianceId field is used to identify
+     *                  which appliance to update).
+     * @throws IOException When a communication error occurs
+     */
     public void updateAppliance(BaseAppliance appliance) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
