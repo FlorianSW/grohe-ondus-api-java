@@ -37,6 +37,17 @@ public class SenseGuardIntegrationTest {
     }
 
     @Test
+    public void applianceNotifications() throws Exception {
+        OndusService service = OndusService.login("A_REFRESH_TOKEN", new ApiClient("http://localhost:3000"));
+        BaseAppliance appliance = service.getAppliance(room, "550e8400-e29b-11d4-a716-446655440000").get();
+
+        List<Notification> notifications = service.notifications(appliance);
+
+        assertEquals("5f7168b6-b0ea-4a6b-9257-667a0bb62eb9", notifications.get(0).getId());
+        assertFalse(notifications.get(0).isRead());
+    }
+
+    @Test
     public void applianceData() throws Exception {
         OndusService service = OndusService.login("A_REFRESH_TOKEN", new ApiClient("http://localhost:3000"));
 

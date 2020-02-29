@@ -1,0 +1,12 @@
+[
+  {
+    "appliance_id": "550e8400-e29b-11d4-a716-446655440000",
+    "id": "5f7168b6-b0ea-4a6b-9257-667a0bb62eb9",
+    "category": 30,
+    "is_read": false,
+    "timestamp": "2019-11-16T16:41:45:000+01:00",
+    "type": 310,
+    "threshold_quantity": "no",
+    "threshold_type": "no"
+  }
+]

@@ -1,5 +1,6 @@
 package org.grohe.ondus.api.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import org.grohe.ondus.api.actions.Action;
@@ -30,7 +31,7 @@ public class ApiClient {
         this.httpClient = httpClient;
     }
 
-    public <T> ApiResponse<T> get(String requestUrl, Class<T> returnType) throws IOException {
+    public <T> ApiResponse<T> get(String requestUrl, TypeReference<T> returnType) throws IOException {
         URL url = new URL(baseUrl + requestUrl);
         HttpURLConnection conn = httpClient.openConnection(url);
         conn.setRequestMethod("GET");
@@ -46,11 +47,11 @@ public class ApiClient {
         return "Bearer " + token;
     }
 
-    public <T> ApiResponse<T> post(String requestUrl, Class<T> returnType) throws IOException {
+    public <T> ApiResponse<T> post(String requestUrl, TypeReference<T> returnType) throws IOException {
         return post(requestUrl, Collections.emptyMap(), returnType);
     }
 
-    public <T> ApiResponse<T> post(String requestUrl, Object body, Class<T> returnType) throws IOException {
+    public <T> ApiResponse<T> post(String requestUrl, Object body, TypeReference<T> returnType) throws IOException {
         URL url = new URL(baseUrl + requestUrl);
         HttpURLConnection conn = httpClient.openConnection(url);
         conn.setRequestMethod("POST");

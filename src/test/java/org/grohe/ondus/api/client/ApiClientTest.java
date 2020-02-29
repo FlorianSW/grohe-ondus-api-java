@@ -1,5 +1,6 @@
 package org.grohe.ondus.api.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,7 +40,7 @@ public class ApiClientTest {
         ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
         client.setToken(A_TOKEN);
 
-        client.get("/v3/info", Object.class);
+        client.get("/v3/info", new TypeReference<Object>() {});
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockHttpClient.httpURLConnection).setRequestProperty(eq("Authorization"), captor.capture());
@@ -52,7 +53,7 @@ public class ApiClientTest {
         ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
         client.setToken(A_TOKEN);
 
-        client.get("/v3/info", Object.class);
+        client.get("/v3/info", new TypeReference<Object>() {});
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockHttpClient.httpURLConnection).setRequestProperty(eq("Authorization"), captor.capture());
@@ -64,7 +65,7 @@ public class ApiClientTest {
         mockHttpClient.httpURLConnection = EXAMPLE_RESPONSE_500;
         ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 
-        ApiResponse<Object> response = client.get("/v2/auth", Object.class);
+        ApiResponse<Object> response = client.get("/v2/auth", new TypeReference<Object>() {});
 
         assertFalse(response.getContent().isPresent());
     }
@@ -75,7 +76,7 @@ public class ApiClientTest {
         when(mockHttpClient.httpURLConnection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
         ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 
-        client.post("/v2/info", Object.class);
+        client.post("/v2/info", new TypeReference<Object>() {});
 
         verify(mockHttpClient.httpURLConnection).setRequestMethod("POST");
         verify(mockHttpClient.httpURLConnection).getInputStream();
@@ -87,7 +88,7 @@ public class ApiClientTest {
         when(mockHttpClient.httpURLConnection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
         ApiClient client = new ApiClient(TEST_BASE_URL, mockHttpClient);
 
-        ApiResponse<Object> response = client.post("/v2/auth", Object.class);
+        ApiResponse<Object> response = client.post("/v2/auth", new TypeReference<Object>() {});
 
         assertFalse(response.getContent().isPresent());
     }

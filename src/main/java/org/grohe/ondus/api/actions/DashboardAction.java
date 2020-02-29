@@ -1,5 +1,6 @@
 package org.grohe.ondus.api.actions;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.NoArgsConstructor;
 import org.grohe.ondus.api.client.ApiResponse;
 import org.grohe.ondus.api.model.BaseAppliance;
@@ -17,7 +18,7 @@ public class DashboardAction extends AbstractAction {
 
     public List<BaseAppliance> appliances() throws IOException {
         ApiResponse<Dashboard> locationsResponse = getApiClient()
-                .get(getApiClient().apiPath() + DASHBOARD_URL, Dashboard.class);
+                .get(getApiClient().apiPath() + DASHBOARD_URL, new TypeReference<Dashboard>() {});
         if (locationsResponse.getStatusCode() != 200) {
             return Collections.emptyList();
         }

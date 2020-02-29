@@ -15,7 +15,7 @@ public class ApiResponse<T> {
     private int statusCode;
     private String content;
 
-    public ApiResponse(HttpURLConnection conn, Class<T> targetClass) throws IOException {
+    public ApiResponse(HttpURLConnection conn, TypeReference<T> targetClass) throws IOException {
         this.statusCode = conn.getResponseCode();
 
         if (statusCode != 200) {

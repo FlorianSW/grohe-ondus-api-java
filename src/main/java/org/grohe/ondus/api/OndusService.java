@@ -2,6 +2,7 @@ package org.grohe.ondus.api;
 
 import org.grohe.ondus.api.actions.ApplianceAction;
 import org.grohe.ondus.api.actions.DashboardAction;
+import org.grohe.ondus.api.actions.NotificationAction;
 import org.grohe.ondus.api.actions.RefreshTokenAction;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.model.*;
@@ -12,6 +13,7 @@ import org.grohe.ondus.api.model.guard.ApplianceData;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -232,5 +234,11 @@ public class OndusService {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
         action.putAppliance(appliance);
+    }
+
+    public List<Notification> notifications(BaseAppliance appliance) throws IOException {
+        NotificationAction action = apiClient.getAction(NotificationAction.class);
+
+        return action.notifications(appliance);
     }
 }

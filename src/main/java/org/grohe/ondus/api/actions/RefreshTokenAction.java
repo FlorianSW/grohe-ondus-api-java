@@ -1,6 +1,7 @@
 package org.grohe.ondus.api.actions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,7 +18,7 @@ public class RefreshTokenAction extends AbstractAction {
 
     public RefreshTokenResponse refresh(String refreshToken) throws IOException, LoginException {
         ApiResponse<RefreshTokenResponse> refreshTokenResponse = getApiClient()
-                .post(REFRESH_URL, new RefreshTokenRequest(refreshToken), RefreshTokenResponse.class);
+                .post(REFRESH_URL, new RefreshTokenRequest(refreshToken), new TypeReference<RefreshTokenResponse>() {});
 
         if (refreshTokenResponse.getStatusCode() == 401) {
             throw new LoginException("401 - Unauthorized");

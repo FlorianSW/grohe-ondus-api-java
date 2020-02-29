@@ -1,5 +1,6 @@
 package org.grohe.ondus.api;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.grohe.ondus.api.actions.*;
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
@@ -47,7 +48,7 @@ public class OndusServiceTest {
     public void login_invalidRefreshToken_throwsAccessDeniedException() throws Exception {
         ApiResponse mockApiResponse = mock(ApiResponse.class);
         when(mockApiResponse.getStatusCode()).thenReturn(401);
-        when(mockApiClient.post(eq("/v3/iot/oidc/refresh"), any(), eq(RefreshTokenResponse.class))).thenReturn(mockApiResponse);
+        when(mockApiClient.post(eq("/v3/iot/oidc/refresh"), any(), any())).thenReturn(mockApiResponse);
 
         OndusService.login("A_REFRESH_TOKEN", mockApiClient);
     }
@@ -61,12 +62,12 @@ public class OndusServiceTest {
         when(mockApiClient.post(
                 eq("/v3/iot/oidc/refresh"),
                 eq(new RefreshTokenAction.RefreshTokenRequest(A_REFRESH_TOKEN)),
-                eq(RefreshTokenResponse.class))
+                any())
         ).thenReturn(mockApiResponse);
         when(mockApiClient.post(
                 eq("/v3/iot/oidc/refresh"),
                 eq(new RefreshTokenAction.RefreshTokenRequest(ANOTHER_TOKEN)),
-                eq(RefreshTokenResponse.class))
+                any())
         ).thenReturn(mockApiResponse);
 
         OndusService actualService = OndusService.login(A_REFRESH_TOKEN, mockApiClient);
@@ -100,7 +101,7 @@ public class OndusServiceTest {
         when(mockApiClient.post(
                 eq("/v3/iot/oidc/refresh"),
                 eq(new RefreshTokenAction.RefreshTokenRequest(A_REFRESH_TOKEN)),
-                eq(RefreshTokenResponse.class))
+                any())
         ).thenReturn(mockApiResponse);
 
         Instant expiresAt = Instant.now().plusSeconds(10);

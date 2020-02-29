@@ -25,15 +25,15 @@ public class ApplianceAction extends AbstractAction {
     private static final String APPLIANCE_STATUS_URL_TEMPLATE = "iot/locations/%d/rooms/%d/appliances/%s/status";
 
     public Optional<BaseAppliance> getAppliance(Room inRoom, String applianceId) throws IOException {
-        ApiResponse<List> applianceApiResponse = getApiClient()
-                .get(String.format(getApiClient().apiPath() + APPLIANCE_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId(), applianceId), List.class);
+        ApiResponse<List<JsonNode>> applianceApiResponse = getApiClient()
+                .get(String.format(getApiClient().apiPath() + APPLIANCE_URL_TEMPLATE, inRoom.getLocation().getId(), inRoom.getId(), applianceId), new TypeReference<List<JsonNode>>() {
+                });
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
 
         Optional<BaseAppliance> applianceOptional = Optional.empty();
-        Optional<List<JsonNode>> nodeList = applianceApiResponse.getContentAs(new TypeReference<List<JsonNode>>() {
-        });
+        Optional<List<JsonNode>> nodeList = applianceApiResponse.getContent();
         if (!nodeList.isPresent()) {
             return applianceOptional;
         }
@@ -54,7 +54,7 @@ public class ApplianceAction extends AbstractAction {
 
     public Optional<BaseApplianceData> getApplianceData(BaseAppliance appliance, Instant from, Instant to) throws IOException {
         ApiResponse<BaseApplianceData> applianceApiResponse = getApiClient()
-                .get(createApplianceDataRequestUrl(appliance, from, to), BaseApplianceData.class);
+                .get(createApplianceDataRequestUrl(appliance, from, to), new TypeReference<BaseApplianceData>() {});
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
@@ -97,7 +97,7 @@ public class ApplianceAction extends AbstractAction {
                         appliance.getRoom().getLocation().getId(),
                         appliance.getRoom().getId(),
                         appliance.getApplianceId()
-                ), BaseApplianceCommand.class);
+                ), new TypeReference<BaseApplianceCommand>() {});
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
@@ -124,7 +124,7 @@ public class ApplianceAction extends AbstractAction {
                 appliance.getRoom().getLocation().getId(),
                 appliance.getRoom().getId(),
                 appliance.getApplianceId()
-        ), command, ApplianceCommand.class);
+        ), command, new TypeReference<ApplianceCommand>() {});
     }
 
     public void putAppliance(BaseAppliance appliance) throws IOException {
@@ -132,7 +132,7 @@ public class ApplianceAction extends AbstractAction {
                 appliance.getRoom().getLocation().getId(),
                 appliance.getRoom().getId(),
                 appliance.getApplianceId()
-        ), appliance, Object.class);
+        ), appliance, new TypeReference<Object>() {});
     }
 
     public Optional<ApplianceStatus> getApplianceStatus(BaseAppliance appliance) throws IOException {
@@ -141,7 +141,7 @@ public class ApplianceAction extends AbstractAction {
                         appliance.getRoom().getLocation().getId(),
                         appliance.getRoom().getId(),
                         appliance.getApplianceId()
-                ), ApplianceStatus.ApplianceStatusModel[].class);
+                ), new TypeReference<ApplianceStatus.ApplianceStatusModel[]>() {});
         if (applianceApiResponse.getStatusCode() != 200) {
             return Optional.empty();
         }
