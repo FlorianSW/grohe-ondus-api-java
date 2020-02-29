@@ -2,10 +2,7 @@ package org.grohe.ondus.api.actions;
 
 import org.grohe.ondus.api.client.ApiClient;
 import org.grohe.ondus.api.client.ApiResponse;
-import org.grohe.ondus.api.model.ApplianceStatus;
-import org.grohe.ondus.api.model.BaseAppliance;
-import org.grohe.ondus.api.model.Location;
-import org.grohe.ondus.api.model.Room;
+import org.grohe.ondus.api.model.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -56,5 +53,16 @@ public class ApplianceActionTest {
 
         assertTrue(actual.isPresent());
         assertEquals("123", actual.get().getApplianceId());
+    }
+
+    @Test(expected = UnexpectedResponse.class)
+    public void putAppliance_non200_throwsUnexpectedResponse() throws Exception {
+        BaseAppliance appliance = new BaseAppliance("123", room123);
+        when(mockApiResponse.getStatusCode()).thenReturn(400);
+        when(mockApiClient.post(eq("/v2/iot/locations/123/rooms/123/appliances/123"), any(), any())).thenReturn(mockApiResponse);
+        ApplianceAction action = new ApplianceAction();
+        action.setApiClient(mockApiClient);
+
+        action.putAppliance(appliance);
     }
 }

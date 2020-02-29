@@ -128,11 +128,14 @@ public class ApplianceAction extends AbstractAction {
     }
 
     public void putAppliance(BaseAppliance appliance) throws IOException {
-        getApiClient().post(String.format(getApiClient().apiPath() + APPLIANCE_URL_TEMPLATE,
+        ApiResponse<Object> response = getApiClient().post(String.format(getApiClient().apiPath() + APPLIANCE_URL_TEMPLATE,
                 appliance.getRoom().getLocation().getId(),
                 appliance.getRoom().getId(),
                 appliance.getApplianceId()
         ), appliance, new TypeReference<Object>() {});
+        if (response.getStatusCode() != 200) {
+            throw new UnexpectedResponse(200, response.getStatusCode());
+        }
     }
 
     public Optional<ApplianceStatus> getApplianceStatus(BaseAppliance appliance) throws IOException {
