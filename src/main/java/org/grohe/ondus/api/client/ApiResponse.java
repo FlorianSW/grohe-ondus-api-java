@@ -21,6 +21,9 @@ public class ApiResponse<T> {
         if (statusCode != 200) {
             mappedContent = null;
         } else {
+            if (targetClass.getType().equals(Void.class)) {
+                return;
+            }
             try (InputStream inputStream = conn.getInputStream()) {
                 extractContentFromResponse(inputStream);
                 ObjectMapper mapper = new ObjectMapper();

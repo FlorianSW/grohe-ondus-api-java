@@ -7,8 +7,8 @@ const room = require('./responses/locations/rooms/23547.json');
 const guard = require('./responses/locations/rooms/appliances/550e8400-e29b-11d4-a716-446655440000.json');
 const guardData = require('./responses/locations/rooms/appliances/data/550e8400-e29b-11d4-a716-446655440000.json');
 const guardNotifications = require('./responses/locations/rooms/appliances/notifications/550e8400-e29b-11d4-a716-446655440000.json');
-let guardCommand = require('./responses/locations/rooms/appliances/command/550e8400-e29b-11d4-a716-446655440000.json');
-let blue = require('./responses/locations/rooms/appliances/550e8400-e29b-11d4-a716-446655440001.json');
+const guardCommand = require('./responses/locations/rooms/appliances/command/550e8400-e29b-11d4-a716-446655440000.json');
+const blue = require('./responses/locations/rooms/appliances/550e8400-e29b-11d4-a716-446655440001.json');
 const blueCommand = require('./responses/locations/rooms/appliances/command/550e8400-e29b-11d4-a716-446655440001.json');
 const port = 3000;
 
@@ -26,10 +26,19 @@ function ifAuthenticated(request, response, callback, writeHead = true) {
     }
 }
 
+let notifications = guardNotifications;
+let actualGuardCommand = guardCommand;
+let actualBlue = blue;
 const requestHandler = (request, response) => {
     console.log('[REQUEST] ' + request.method + ': ' + request.url);
     const parsed = url.parse(request.url);
-    if (parsed.pathname === "/v3/iot/oidc/token") {
+    if (parsed.pathname === "/resetState") {
+        notifications = guardNotifications;
+        actualGuardCommand = guardCommand;
+        actualBlue = blue;
+        response.writeHead(200);
+        response.end();
+    } else if (parsed.pathname === "/v3/iot/oidc/token") {
         response.writeHead(200, {"Content-Type": "application/json"});
         response.write(JSON.stringify(token));
         response.end();
@@ -59,7 +68,7 @@ const requestHandler = (request, response) => {
         });
     } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances') {
         ifAuthenticated(request, response, function (resp) {
-            resp.write(JSON.stringify([guard, blue]));
+            resp.write(JSON.stringify([guard, actualBlue]));
         });
     } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
@@ -71,11 +80,32 @@ const requestHandler = (request, response) => {
         });
     } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000/notifications' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
-            resp.write(JSON.stringify(guardNotifications));
+            resp.write(JSON.stringify(notifications));
+        });
+    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000/notifications/5f7168b6-b0ea-4a6b-9257-667a0bb62eb9' && request.method === 'PUT') {
+        let data = '';
+        request.on('data', chunk => {
+            data += chunk.toString();
+        });
+        request.on('end', () => {
+            ifAuthenticated(request, response, function (resp) {
+                const parsedData = JSON.parse(data);
+                if (parsedData.is_read === true) {
+                    notifications = [];
+                } else if (parsedData.is_read === false) {
+                    notifications = guardNotifications;
+                } else {
+                    resp.writeHead(400);
+                    resp.end();
+                    return;
+                }
+                resp.writeHead(200, {"Content-Type": "application/json"});
+                resp.end();
+            }, false);
         });
     } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000/command' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
-            resp.write(JSON.stringify(guardCommand));
+            resp.write(JSON.stringify(actualGuardCommand));
         });
     }  else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000/command' && request.method === 'POST') {
         let data = '';
@@ -84,14 +114,14 @@ const requestHandler = (request, response) => {
         });
         request.on('end', () => {
             ifAuthenticated(request, response, function (resp) {
-                guardCommand = JSON.parse(data);
+                actualGuardCommand = JSON.parse(data);
                 resp.writeHead(201, {"Content-Type": "application/json"});
                 resp.write(data);
             }, false);
         });
     } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
-            resp.write(JSON.stringify([blue]));
+            resp.write(JSON.stringify([actualBlue]));
         });
     } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001/command' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
@@ -110,7 +140,7 @@ const requestHandler = (request, response) => {
                     resp.end();
                     return;
                 }
-                blue = parsedData;
+                actualBlue = parsedData;
                 resp.writeHead(201, {"Content-Type": "application/json"});
                 resp.write(data);
             }, false);

@@ -241,4 +241,10 @@ public class OndusService {
 
         return action.notifications(appliance);
     }
+
+    public void read(BaseAppliance appliance, Notification notification) throws IOException {
+        NotificationAction action = apiClient.getAction(NotificationAction.class);
+
+        action.read(appliance, notification);
+    }
 }

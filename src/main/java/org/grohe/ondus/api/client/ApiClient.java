@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import org.grohe.ondus.api.actions.Action;
+import org.grohe.ondus.api.actions.NotificationAction;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -55,6 +56,20 @@ public class ApiClient {
         URL url = new URL(baseUrl + requestUrl);
         HttpURLConnection conn = httpClient.openConnection(url);
         conn.setRequestMethod("POST");
+
+        if (authorization() != null) {
+            conn.setRequestProperty(HEADER_AUTHORIZATION, authorization());
+        }
+        conn.setRequestProperty(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON);
+        writeBody(body, conn);
+
+        return new ApiResponse<>(conn, returnType);
+    }
+
+    public <T> ApiResponse<T> put(String requestUrl, Object body, TypeReference<T> returnType) throws IOException {
+        URL url = new URL(baseUrl + requestUrl);
+        HttpURLConnection conn = httpClient.openConnection(url);
+        conn.setRequestMethod("PUT");
 
         if (authorization() != null) {
             conn.setRequestProperty(HEADER_AUTHORIZATION, authorization());

@@ -1,14 +1,19 @@
 package org.grohe.ondus.api;
 
 import org.grohe.ondus.api.client.ApiClient;
+import org.grohe.ondus.api.client.HttpClient;
 import org.grohe.ondus.api.model.*;
 import org.grohe.ondus.api.model.guard.Appliance;
 import org.grohe.ondus.api.model.guard.ApplianceCommand;
 import org.grohe.ondus.api.model.guard.ApplianceData;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.security.auth.login.LoginException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -18,12 +23,16 @@ public class SenseGuardIntegrationTest {
     private Room room;
 
     @Before
-    public void initRoom() {
+    public void initRoom() throws Exception {
         Location location = new Location();
         location.setId(14521);
         room = new Room();
         room.setId(23547);
         room.setLocation(location);
+
+        URL url = new URL("http://localhost:3000/resetState");
+        HttpURLConnection conn = HttpClient.createDefault().openConnection(url);
+        Assume.assumeThat(conn.getResponseCode(), equalTo(200));
     }
 
     @Test
@@ -45,6 +54,17 @@ public class SenseGuardIntegrationTest {
 
         assertEquals("5f7168b6-b0ea-4a6b-9257-667a0bb62eb9", notifications.get(0).getId());
         assertFalse(notifications.get(0).isRead());
+    }
+
+    @Test
+    public void readNotification() throws Exception {
+        OndusService service = OndusService.login("A_REFRESH_TOKEN", new ApiClient("http://localhost:3000"));
+        BaseAppliance appliance = service.getAppliance(room, "550e8400-e29b-11d4-a716-446655440000").get();
+        List<Notification> notifications = service.notifications(appliance);
+
+        service.read(appliance, notifications.get(0));
+
+        assertEquals(0, service.notifications(appliance).size());
     }
 
     @Test
