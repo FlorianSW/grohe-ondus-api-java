@@ -59,7 +59,7 @@ public class ApplianceActionTest {
     public void putAppliance_non200_throwsUnexpectedResponse() throws Exception {
         BaseAppliance appliance = new BaseAppliance("123", room123);
         when(mockApiResponse.getStatusCode()).thenReturn(400);
-        when(mockApiClient.post(eq("/v2/iot/locations/123/rooms/123/appliances/123"), any(), any())).thenReturn(mockApiResponse);
+        when(mockApiClient.put(eq("/v2/iot/locations/123/rooms/123/appliances/123"), any(), any())).thenReturn(mockApiResponse);
         ApplianceAction action = new ApplianceAction();
         action.setApiClient(mockApiClient);
 
