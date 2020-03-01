@@ -127,7 +127,7 @@ const requestHandler = (request, response) => {
         ifAuthenticated(request, response, function (resp) {
             resp.write(JSON.stringify(blueCommand));
         });
-    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001' && request.method === 'POST') {
+    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001' && request.method === 'PUT') {
         let data = '';
         request.on('data', chunk => {
             data += chunk.toString();

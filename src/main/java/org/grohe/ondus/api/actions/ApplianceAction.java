@@ -128,7 +128,7 @@ public class ApplianceAction extends AbstractAction {
     }
 
     public void putAppliance(BaseAppliance appliance) throws IOException {
-        ApiResponse<Object> response = getApiClient().post(String.format(getApiClient().apiPath() + APPLIANCE_URL_TEMPLATE,
+        ApiResponse<Object> response = getApiClient().put(String.format(getApiClient().apiPath() + APPLIANCE_URL_TEMPLATE,
                 appliance.getRoom().getLocation().getId(),
                 appliance.getRoom().getId(),
                 appliance.getApplianceId()
