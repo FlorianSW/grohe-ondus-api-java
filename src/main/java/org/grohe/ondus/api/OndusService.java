@@ -236,18 +236,13 @@ public class OndusService {
         action.putAppliance(appliance);
     }
 
-    public List<Notification> notifications(BaseAppliance appliance) throws IOException {
-        NotificationAction action = apiClient.getAction(NotificationAction.class);
-
-        return action.notifications(appliance);
-    }
-
-    public void read(BaseAppliance appliance, Notification notification) throws IOException {
-        NotificationAction action = apiClient.getAction(NotificationAction.class);
-
-        action.read(appliance, notification);
-    }
-
+    /**
+     * Sends a modified {@link BaseApplianceCommand} for the appliance, referenced in the command. The action may or may
+     * not be executed, depending on what values in the command where changed and how the API reacts to them.
+     *
+     * @param command The changed ApplianceCommand
+     * @throws IOException When a communication error occurs
+     */
     public void sendCommand(BaseApplianceCommand command) throws IOException {
         ApplianceAction action = apiClient.getAction(ApplianceAction.class);
 
@@ -257,5 +252,34 @@ public class OndusService {
                 .orElseThrow(() -> new IllegalArgumentException("The appliance with the ID " +
                         command.applianceId + " does not exist in your account"));
         action.putApplianceCommand(appliance, command);
+    }
+
+    /**
+     * Returns a list of unread notifications for the given appliance. You can mark a notification returned in this list
+     * as read with {@link OndusService#read(BaseAppliance, Notification)}. Doing so, and calling this method again, does
+     * not return the very same notification again.
+     *
+     * @param appliance The appliance to read the notifications for
+     * @return A list of unread notifications
+     * @throws IOException When a communication error occurs
+     */
+    public List<Notification> notifications(BaseAppliance appliance) throws IOException {
+        NotificationAction action = apiClient.getAction(NotificationAction.class);
+
+        return action.notifications(appliance);
+    }
+
+    /**
+     * Marks a notification from the given appliance as read. You can acquire a notification with the
+     * {@link OndusService#notifications(BaseAppliance)} method.
+     *
+     * @param appliance The appliance the notification is for.
+     * @param notification The notification, which should be marked as read.
+     * @throws IOException When a communication error occurs
+     */
+    public void read(BaseAppliance appliance, Notification notification) throws IOException {
+        NotificationAction action = apiClient.getAction(NotificationAction.class);
+
+        action.read(appliance, notification);
     }
 }
