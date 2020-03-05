@@ -247,4 +247,15 @@ public class OndusService {
 
         action.read(appliance, notification);
     }
+
+    public void sendCommand(BaseApplianceCommand command) throws IOException {
+        ApplianceAction action = apiClient.getAction(ApplianceAction.class);
+
+        BaseAppliance appliance = this.appliances().stream()
+                .filter(a -> a.getApplianceId().equals(command.applianceId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("The appliance with the ID " +
+                        command.applianceId + " does not exist in your account"));
+        action.putApplianceCommand(appliance, command);
+    }
 }

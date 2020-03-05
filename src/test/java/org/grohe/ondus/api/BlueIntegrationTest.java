@@ -9,18 +9,22 @@ import org.grohe.ondus.api.model.blue.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
 
 public class BlueIntegrationTest {
     private Room room;
 
     @Before
-    public void initRoom() {
+    public void initRoom() throws IOException {
         Location location = new Location();
         location.setId(14521);
         room = new Room();
         room.setId(23547);
         room.setLocation(location);
+
+        Api.reset();
     }
 
     @Test
@@ -75,7 +79,7 @@ public class BlueIntegrationTest {
         assertEquals(Appliance.TYPE, base.getType().intValue());
         ApplianceCommand command = (ApplianceCommand) base;
         assertEquals(0, command.getCommand().getTapAmount());
-        assertEquals(0, command.getCommand().getTapType());
+        assertEquals(TapType.STILL, command.tapType());
         assertFalse(command.getCommand().isCo2StatusReset());
         assertFalse(command.getCommand().isCleaningMode());
         assertFalse(command.getCommand().isFilterStatusReset());
@@ -83,5 +87,17 @@ public class BlueIntegrationTest {
         assertFalse(command.getCommand().isFactoryReset());
         assertTrue(command.getCommand().isRevokeFlushConfirmation());
         assertFalse(command.getCommand().isExecAutoFlush());
+    }
+
+    @Test
+    public void updatesTapType() throws Exception {
+        OndusService service = OndusService.login("A_REFRESH_TOKEN", new ApiClient("http://localhost:3000"));
+        ApplianceCommand command = (ApplianceCommand) service.applianceCommand(new Appliance("550e8400-e29b-11d4-a716-446655440001", room)).get();
+
+        command.updateTapType(TapType.CARBONATED);
+        service.sendCommand(command);
+
+        command = (ApplianceCommand) service.applianceCommand(new Appliance("550e8400-e29b-11d4-a716-446655440001", room)).get();
+        assertEquals(TapType.CARBONATED, command.tapType());
     }
 }

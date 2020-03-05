@@ -30,9 +30,7 @@ public class SenseGuardIntegrationTest {
         room.setId(23547);
         room.setLocation(location);
 
-        URL url = new URL("http://localhost:3000/resetState");
-        HttpURLConnection conn = HttpClient.createDefault().openConnection(url);
-        Assume.assumeThat(conn.getResponseCode(), equalTo(200));
+        Api.reset();
     }
 
     @Test

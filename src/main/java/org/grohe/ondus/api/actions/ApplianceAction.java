@@ -119,7 +119,7 @@ public class ApplianceAction extends AbstractAction {
         return Optional.of(applianceData);
     }
 
-    public void putApplianceCommand(org.grohe.ondus.api.model.guard.Appliance appliance, ApplianceCommand command) throws IOException {
+    public void putApplianceCommand(BaseAppliance appliance, BaseApplianceCommand command) throws IOException {
         getApiClient().post(String.format(getApiClient().apiPath() + APPLIANCE_COMMAND_URL_TEMPLATE,
                 appliance.getRoom().getLocation().getId(),
                 appliance.getRoom().getId(),

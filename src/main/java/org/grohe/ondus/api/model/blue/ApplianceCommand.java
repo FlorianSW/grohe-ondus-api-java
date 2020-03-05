@@ -26,6 +26,14 @@ public class ApplianceCommand extends BaseApplianceCommand {
         super(forAppliance);
     }
 
+    public void updateTapType(TapType type) {
+        this.command.tapType = type.apiValue;
+    }
+
+    public TapType tapType() {
+        return TapType.of(this.command.tapType);
+    }
+
     @Getter
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -50,14 +58,5 @@ public class ApplianceCommand extends BaseApplianceCommand {
         private boolean revokeFlushConfirmation;
         @JsonProperty("exec_auto_flush")
         private boolean execAutoFlush;
-
-
-        public void updateFilterType(TapType type) {
-            this.tapType = type.apiValue;
-        }
-
-        public TapType filterType() {
-            return TapType.of(tapType);
-        }
     }
 }

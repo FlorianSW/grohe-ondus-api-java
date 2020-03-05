@@ -29,6 +29,7 @@ function ifAuthenticated(request, response, callback, writeHead = true) {
 let notifications = guardNotifications;
 let actualGuardCommand = guardCommand;
 let actualBlue = blue;
+let actualBlueCommand = blueCommand;
 const requestHandler = (request, response) => {
     console.log('[REQUEST] ' + request.method + ': ' + request.url);
     const parsed = url.parse(request.url);
@@ -36,6 +37,7 @@ const requestHandler = (request, response) => {
         notifications = guardNotifications;
         actualGuardCommand = guardCommand;
         actualBlue = blue;
+        actualBlueCommand = blueCommand;
         response.writeHead(200);
         response.end();
     } else if (parsed.pathname === "/v3/iot/oidc/token") {
@@ -125,9 +127,21 @@ const requestHandler = (request, response) => {
         });
     } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001/command' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
-            resp.write(JSON.stringify(blueCommand));
+            resp.write(JSON.stringify(actualBlueCommand));
         });
-    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001' && request.method === 'PUT') {
+    }  else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001/command' && request.method === 'POST') {
+        let data = '';
+        request.on('data', chunk => {
+            data += chunk.toString();
+        });
+        request.on('end', () => {
+            ifAuthenticated(request, response, function (resp) {
+                actualBlueCommand = JSON.parse(data);
+                resp.writeHead(201, {"Content-Type": "application/json"});
+                resp.write(data);
+            }, false);
+        });
+    }  else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440001' && request.method === 'PUT') {
         let data = '';
         request.on('data', chunk => {
             data += chunk.toString();

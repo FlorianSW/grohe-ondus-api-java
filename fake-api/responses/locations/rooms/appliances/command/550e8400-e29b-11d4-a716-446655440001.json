@@ -3,7 +3,7 @@
   "type": 104,
   "command": {
     "co2_status_reset": false,
-    "tap_type": 0,
+    "tap_type": 1,
     "cleaning_mode": false,
     "filter_status_reset": false,
     "get_current_measurement": false,
