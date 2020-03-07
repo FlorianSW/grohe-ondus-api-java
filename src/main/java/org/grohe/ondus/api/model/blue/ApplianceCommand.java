@@ -25,8 +25,9 @@ public class ApplianceCommand extends BaseApplianceCommand {
         super(forAppliance);
     }
 
-    public void updateTapType(TapType type) {
+    public void turnTapOn(TapType type, int tapAmount) {
         this.command.tapType = type.apiValue;
+        this.command.tapAmount = tapAmount;
     }
 
     public TapType tapType() {

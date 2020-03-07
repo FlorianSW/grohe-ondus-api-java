@@ -90,14 +90,15 @@ public class BlueIntegrationTest {
     }
 
     @Test
-    public void updatesTapType() throws Exception {
+    public void turnOnTap() throws Exception {
         OndusService service = OndusService.login("A_REFRESH_TOKEN", new ApiClient("http://localhost:3000"));
         ApplianceCommand command = (ApplianceCommand) service.applianceCommand(new Appliance("550e8400-e29b-11d4-a716-446655440001", room)).get();
 
-        command.updateTapType(TapType.CARBONATED);
+        command.turnTapOn(TapType.CARBONATED, 200);
         service.sendCommand(command);
 
         command = (ApplianceCommand) service.applianceCommand(new Appliance("550e8400-e29b-11d4-a716-446655440001", room)).get();
         assertEquals(TapType.CARBONATED, command.tapType());
+        assertEquals(200, command.getCommand().getTapAmount());
     }
 }
