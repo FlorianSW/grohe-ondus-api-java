@@ -12,13 +12,16 @@ import java.util.Optional;
 
 public class ApiResponse<T> {
     private T mappedContent;
-    private int statusCode;
+    private final int statusCode;
     private String content;
 
     public ApiResponse(HttpURLConnection conn, TypeReference<T> targetClass) throws IOException {
         this.statusCode = conn.getResponseCode();
 
-        if (statusCode != 200) {
+        if (statusCode < 200 || statusCode > 299) {
+            try (InputStream inputStream = conn.getErrorStream()) {
+                extractContentFromResponse(inputStream);
+            }
             mappedContent = null;
         } else {
             if (targetClass.getType().equals(Void.class)) {
@@ -29,6 +32,14 @@ public class ApiResponse<T> {
                 ObjectMapper mapper = new ObjectMapper();
                 mappedContent = mapper.readValue(content, targetClass);
             }
+        }
+
+        if ("1".equals(System.getProperty("org.grohe.ondus.api.client::debug"))) {
+            System.out.println("Received response for " +
+                conn.getRequestMethod() + " " +
+                conn.getURL().toString() + ". Status: " +
+                this.statusCode + ", Content: " +
+                this.content);
         }
     }
 
@@ -48,15 +59,6 @@ public class ApiResponse<T> {
     }
 
     public <E extends T> Optional<E> getContentAs(Class<E> targetClass) {
-        E contentForTargetClass = null;
-        try {
-            contentForTargetClass = new ObjectMapper().readValue(this.content, targetClass);
-        } catch (IOException ignored) {
-        }
-        return Optional.ofNullable(contentForTargetClass);
-    }
-
-    public <E extends T> Optional<E> getContentAs(TypeReference<E> targetClass) {
         E contentForTargetClass = null;
         try {
             contentForTargetClass = new ObjectMapper().readValue(this.content, targetClass);

@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -32,6 +33,7 @@ public class ApiClientTest {
 
         EXAMPLE_RESPONSE_500 = mock(HttpURLConnection.class);
         when(EXAMPLE_RESPONSE_500.getResponseCode()).thenReturn(500);
+        when(EXAMPLE_RESPONSE_500.getErrorStream()).thenReturn(new ByteArrayInputStream("".getBytes()));
     }
 
     @Test

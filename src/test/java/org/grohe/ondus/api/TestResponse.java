@@ -3,6 +3,7 @@ package org.grohe.ondus.api;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

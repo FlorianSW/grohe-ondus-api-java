@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import org.grohe.ondus.api.actions.Action;
-import org.grohe.ondus.api.actions.NotificationAction;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.NoArgsConstructor;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ public class ApiResponseTest {
     public void constructorGetContent_500_doesNotParseContent() throws Exception {
         HttpURLConnection mockHttpResponse = mock(HttpURLConnection.class);
         when(mockHttpResponse.getResponseCode()).thenReturn(500);
+        when(mockHttpResponse.getErrorStream()).thenReturn(new ByteArrayInputStream("".getBytes()));
 
         ApiResponse<Object> apiResponse = new ApiResponse<>(mockHttpResponse, new TypeReference<Object>() {});
 
