@@ -10,15 +10,15 @@ buildscript {
 plugins {
     id 'java'
     id 'idea'
-    id 'maven-publish'
-    id 'com.jfrog.bintray' version '1.8.2'
+    id 'maven'
+    id 'signing'
     id 'io.freefair.lombok' version '3.2.0'
 }
 
 apply plugin: 'biz.aQute.bnd.builder'
-
-group 'org.grohe'
+group 'io.github.floriansw'
 version '1.0.1'
+archivesBaseName = 'ondus-api'
 
 compileJava {
     sourceCompatibility = '1.8'
@@ -40,33 +40,59 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
 artifacts {
-    archives sourcesJar
+    archives javadocJar, sourcesJar
 }
 
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications = ['GroheOndusApi']
-    pkg {
-        repo = 'java-libraries'
-        name = 'grohe-ondus-api'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/floriansw/grohe-ondus-api-java.git'
-        version {
-            name = '1.0.1'
-            desc = 'GROHE ONDUS Api library'
-            released = new Date()
-            vcsTag = '1.0.1'
-        }
-    }
+signing {
+    sign configurations.archives
 }
 
-publishing {
-    publications {
-        GroheOndusApi(MavenPublication) {
-            from components.java
-            artifact sourcesJar
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'grohe-ondus-api-java'
+                packaging 'jar'
+                description 'A library which can communicate to the Grohe ONDUS API interface, e.g. to request appliance data or to send commands.'
+                url 'https://github.com/FlorianSW/grohe-ondus-api-java'
+
+                scm {
+                    connection 'scm:git:https://github.com/FlorianSW/grohe-ondus-api-java'
+                    developerConnection 'scm:git:https://github.com/FlorianSW/grohe-ondus-api-java'
+                    url 'https://github.com/FlorianSW/grohe-ondus-api-java'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT'
+                        url "https://github.com/FlorianSW/grohe-ondus-api-java/blob/$version/LICENSE"
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'FlorianSW'
+                        name 'Florian Schmidt'
+                        email 'florian.schmidt.welzow@t-online.de'
+                    }
+                }
+            }
         }
     }
 }
