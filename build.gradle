@@ -15,6 +15,9 @@ plugins {
     id 'io.freefair.lombok' version '3.2.0'
 }
 
+def ossrhUsername
+def ossrhPassword
+
 apply plugin: 'biz.aQute.bnd.builder'
 group 'io.github.floriansw'
 version '1.0.1'
@@ -50,7 +53,9 @@ artifacts {
 }
 
 signing {
-    sign configurations.archives
+    if (project.hasProperty("signing.secretKeyRingFile")) {
+        sign configurations.archives
+    }
 }
 
 uploadArchives {
