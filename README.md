@@ -14,21 +14,21 @@ any backwards compatibility). Once Grohe releases a public API, this library may
 
 # Installation
 
-The library is released to a [bintray project](https://bintray.com/floriansw/java-libraries/grohe-ondus-api) and linked to JCenter. Once you've setup [jcenter in your project](https://bintray.com/bintray/jcenter) (see the "Set me up!" dialog for details) you can add the library to your project (you should check for a newer version on jcenter, though):
+The library is released to Maven Central (https://repo1.maven.org/maven2/io/github/floriansw/ondus-api/)
 
 ## Maven
 ```
 <dependency>
-  <groupId>org.grohe</groupId>
+  <groupId>io.github.floriansw</groupId>
   <artifactId>ondus-api</artifactId>
-  <version>0.0.9</version>
+  <version>1.0.1</version>
   <type>pom</type>
 </dependency>
 ```
 
 ## Gradle
 ```
-compile 'org.grohe:ondus-api:0.0.9'
+compile 'io.github.floriansw:ondus-api:1.0.1'
 ```
 
 ## Java API
