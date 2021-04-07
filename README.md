@@ -21,14 +21,14 @@ The library is released to Maven Central (https://repo1.maven.org/maven2/io/gith
 <dependency>
   <groupId>io.github.floriansw</groupId>
   <artifactId>ondus-api</artifactId>
-  <version>1.0.1</version>
+  <version>2.0.0</version>
   <type>pom</type>
 </dependency>
 ```
 
 ## Gradle
 ```
-compile 'io.github.floriansw:ondus-api:1.0.1'
+compile 'io.github.floriansw:ondus-api:2.0.0'
 ```
 
 ## Java API
