@@ -3,20 +3,17 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'biz.aQute.bnd:biz.aQute.bnd.gradle:4.2.0'
+        classpath 'biz.aQute.bnd:biz.aQute.bnd.gradle:6.4.0'
     }
 }
 
 plugins {
-    id 'java'
+    id 'java-library'
+    id 'maven-publish'
     id 'idea'
-    id 'maven'
     id 'signing'
-    id 'io.freefair.lombok' version '3.2.0'
+    id 'io.freefair.lombok' version '8.3'
 }
-
-def ossrhUsername = findProperty('ossrhUsername')
-def ossrhPassword = findProperty('ossrhPassword')
 
 apply plugin: 'biz.aQute.bnd.builder'
 group 'io.github.floriansw'
@@ -38,76 +35,67 @@ repositories {
     mavenCentral()
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
-signing {
-    if (project.hasProperty("signing.secretKeyRingFile")) {
-        sign configurations.archives
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                name 'grohe-ondus-api-java'
-                packaging 'jar'
-                description 'A library which can communicate to the Grohe ONDUS API interface, e.g. to request appliance data or to send commands.'
-                url 'https://github.com/FlorianSW/grohe-ondus-api-java'
-
-                scm {
-                    connection 'scm:git:https://github.com/FlorianSW/grohe-ondus-api-java'
-                    developerConnection 'scm:git:https://github.com/FlorianSW/grohe-ondus-api-java'
-                    url 'https://github.com/FlorianSW/grohe-ondus-api-java'
-                }
-
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'grohe-ondus-api-java'
+                description = 'A library which can communicate to the Grohe ONDUS API interface, e.g. to request appliance data or to send commands.'
+                url = 'https://github.com/FlorianSW/grohe-ondus-api-java'
                 licenses {
                     license {
-                        name 'MIT'
-                        url "https://github.com/FlorianSW/grohe-ondus-api-java/blob/$version/LICENSE"
+                        name = 'MIT'
+                        url = '"https://github.com/FlorianSW/grohe-ondus-api-java/blob/$version/LICENSE"'
                     }
                 }
-
                 developers {
                     developer {
-                        id 'FlorianSW'
-                        name 'Florian Schmidt'
-                        email 'florian.schmidt.welzow@t-online.de'
+                        id = 'FlorianSW'
+                        name = 'Florian Schmidt'
+                        email = 'florian.schmidt.welzow@t-online.de'
                     }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/FlorianSW/grohe-ondus-api-java'
+                    developerConnection = 'scm:git:https://github.com/FlorianSW/grohe-ondus-api-java'
+                    url = 'https://github.com/FlorianSW/grohe-ondus-api-java'
                 }
             }
         }
     }
+    repositories {
+        maven {
+            name = "ossrh"
+            credentials(PasswordCredentials)
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
 
 dependencies {
-    compile 'org.apache.commons:commons-text:1.6'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.9.9'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.9'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
+    implementation 'org.apache.commons:commons-text:1.10.0'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.9'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.9'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.7.1'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile "org.mockito:mockito-core:2.28.2"
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
+    testImplementation "org.mockito:mockito-core:2.28.2"
 }
