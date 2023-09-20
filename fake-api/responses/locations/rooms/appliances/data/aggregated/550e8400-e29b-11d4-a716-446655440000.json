@@ -4,25 +4,25 @@
   "data": {
     "measurement": [
       {
-        "timestamp": "2019-02-25T11:02:37.000+01:00",
+        "date": "2019-02-25",
         "flowrate": 0,
         "pressure": 4.1,
         "temperature_guard": 14.5
       },
       {
-        "timestamp": "2019-02-25T11:17:37.000+01:00",
+        "date": "2019-02-25",
         "flowrate": 10.5,
         "pressure": 3.1,
         "temperature_guard": 14.5
       },
       {
-        "timestamp": "2019-02-25T11:32:37.000+01:00",
+        "date": "2019-02-25",
         "flowrate": 0,
         "pressure": 4.1,
         "temperature_guard": 14
       },
       {
-        "timestamp": "2019-02-25T11:47:37.000+01:00",
+        "date": "2019-02-25",
         "flowrate": 0,
         "pressure": 4,
         "temperature_guard": 14.5
@@ -30,37 +30,29 @@
     ],
     "withdrawals": [
       {
-        "starttime": "2019-02-25T10:35:34.000+01:00",
-        "stoptime": "2019-02-25T10:35:41.000+01:00",
+        "date": "2019-02-25",
         "waterconsumption": 0.8,
-        "maxflowrate": 7.7,
         "hotwater_share": 0.2,
         "water_cost": 0.003405,
         "energy_cost": 0.000954
       },
       {
-        "starttime": "2019-02-25T10:35:30.000+01:00",
-        "stoptime": "2019-02-25T10:35:30.000+01:00",
+        "date": "2019-02-25",
         "waterconsumption": 0,
-        "maxflowrate": 3.4,
         "hotwater_share": 0,
         "water_cost": 0,
         "energy_cost": 0
       },
       {
-        "starttime": "2019-02-25T11:01:34.000+01:00",
-        "stoptime": "2019-02-25T11:01:42.000+01:00",
+        "date": "2019-02-25",
         "waterconsumption": 0.9,
-        "maxflowrate": 7.7,
         "hotwater_share": 0.3,
         "water_cost": 0.00383,
         "energy_cost": 0.001074
       },
       {
-        "starttime": "2019-02-25T11:17:09.000+01:00",
-        "stoptime": "2019-02-25T11:18:13.000+01:00",
+        "date": "2019-02-25",
         "waterconsumption": 9,
-        "maxflowrate": 11,
         "hotwater_share": 0,
         "water_cost": 0.038304,
         "energy_cost": 0

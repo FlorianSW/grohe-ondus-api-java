@@ -5,7 +5,7 @@ const dashboard = require('./responses/dashboard.json');
 const location = require('./responses/locations/14521.json');
 const room = require('./responses/locations/rooms/23547.json');
 const guard = require('./responses/locations/rooms/appliances/550e8400-e29b-11d4-a716-446655440000.json');
-const guardData = require('./responses/locations/rooms/appliances/data/550e8400-e29b-11d4-a716-446655440000.json');
+const guardAggregatedData = require('./responses/locations/rooms/appliances/data/aggregated/550e8400-e29b-11d4-a716-446655440000.json');
 const guardNotifications = require('./responses/locations/rooms/appliances/notifications/550e8400-e29b-11d4-a716-446655440000.json');
 const guardCommand = require('./responses/locations/rooms/appliances/command/550e8400-e29b-11d4-a716-446655440000.json');
 const blue = require('./responses/locations/rooms/appliances/550e8400-e29b-11d4-a716-446655440001.json');
@@ -76,9 +76,9 @@ const requestHandler = (request, response) => {
         ifAuthenticated(request, response, function (resp) {
             resp.write(JSON.stringify([guard]));
         });
-    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000/data' && request.method === 'GET') {
+    } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000/data/aggregated' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {
-            resp.write(JSON.stringify(guardData));
+            resp.write(JSON.stringify(guardAggregatedData));
         });
     } else if (parsed.pathname === '/v3/iot/locations/14521/rooms/23547/appliances/550e8400-e29b-11d4-a716-446655440000/notifications' && request.method === 'GET') {
         ifAuthenticated(request, response, function (resp) {

@@ -20,7 +20,7 @@ def ossrhPassword = findProperty('ossrhPassword')
 
 apply plugin: 'biz.aQute.bnd.builder'
 group 'io.github.floriansw'
-version '2.0.0'
+version '3.0.0'
 archivesBaseName = 'ondus-api'
 
 compileJava {

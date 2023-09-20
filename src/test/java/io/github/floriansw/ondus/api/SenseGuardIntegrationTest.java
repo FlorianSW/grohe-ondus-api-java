@@ -69,9 +69,7 @@ public class SenseGuardIntegrationTest {
         List<ApplianceData.Withdrawals> withdrawals = ((ApplianceData) data).getData().getWithdrawals();
         assertEquals(4, withdrawals.size());
         assertEquals(0.8, withdrawals.get(0).waterconsumption, 0.0001);
-        assertEquals(7.7, withdrawals.get(0).maxflowrate, 0.0001);
         assertEquals(0, withdrawals.get(1).waterconsumption, 0.0001);
-        assertEquals(3.4, withdrawals.get(1).maxflowrate, 0.0001);
         List<ApplianceData.Measurement> measurement = ((ApplianceData) data).getData().getMeasurement();
         assertEquals(14.5, measurement.get(0).temperatureGuard, 0.0001);
         assertEquals(4.1, measurement.get(0).pressure, 0.0001);
